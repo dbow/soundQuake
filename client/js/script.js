@@ -8,12 +8,12 @@ var DATA = {};
 
     DATA.source = (function () {
 
-        var FT_ID = '1jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY',
+        var currFtId = '',
+            dataObjects = {},
             SERVER_URL = '/data?query=',
-            describeUrl = encodeURI('query?sql=DESCRIBE ' + FT_ID),
+            describeUrl = 'query?sql=DESCRIBE ',
             selectUrl = 'query?sql=SELECT ',
-            columns = [],
-            rows,
+            // Default map window (roughly the bay area)
             latLngBounds = {
                 TOP_LAT: 38.090668,
                 BOT_LAT: 37.342867,
@@ -23,30 +23,53 @@ var DATA = {};
 
         return {
 
+            setCurrId: function (newId) {
+                currFtId = newId;
+            },
+
             getColumns: function () {
-                return columns;
+                return dataObjects[currFtId].columns;
             },
 
             getRows: function () {
-                return rows;
+                return dataObjects[currFtId].rows;
             },
 
             getBounds: function () {
                 return latLngBounds;
             },
 
+            createDataObject: function (id) {
+
+                if (!dataObjects[id]) {
+                    var newObj = {};
+                    newObj.columns = ['Date', 'Latitude', 'Longitude']; // Required Fusion Table columns.
+                    newObj.rows = [];
+                    dataObjects[id] = newObj;
+                }
+
+                DATA.source.setCurrId(id);
+                DATA.source.retrieveColumns();
+
+            },
+
             retrieveColumns: function () {
 
-                $.get(SERVER_URL + describeUrl, function(data) {
+                $.get(encodeURI(SERVER_URL + describeUrl + currFtId), function(data) {
 
                     var parsedData = DATA.source.parseResponse(data),
                         obj,
-                        colObj;
+                        colObj,
+                        dataObj = dataObjects[currFtId];
 
                     for (obj in parsedData) {
                         if (parsedData.hasOwnProperty(obj)) {
                             colObj = parsedData[obj];
-                            columns.push(colObj['name']);
+                            if (dataObj.columns.length < 5) {
+                              if (colObj['type'] === 'number' && dataObj.columns.indexOf(colObj['name']) < 0) {
+                                dataObj.columns.push(colObj['name']);
+                              }
+                            }
                         }
                     }
 
@@ -58,13 +81,15 @@ var DATA = {};
 
             retrieveRows: function () {
 
-                if (columns.length > 0) {
+                var dataObj = dataObjects[currFtId];
 
-                    var selectCols = "'" + columns.join("', '") + "'",
-                        fullSelectUrl = encodeURI(SERVER_URL + selectUrl + selectCols + ' FROM ' + FT_ID);
+                if (dataObj.columns.length > 0) {
+
+                    var selectCols = "'" + dataObj.columns.join("', '") + "'",
+                        fullSelectUrl = encodeURI(SERVER_URL + selectUrl + selectCols + ' FROM ' + currFtId);
 
                     $.get(fullSelectUrl, function(data) {
-                        rows = DATA.source.parseResponse(data);
+                        dataObj.rows = DATA.source.parseResponse(data);
                         DATA.visualize.init();
                     });
 
@@ -84,8 +109,7 @@ var DATA = {};
                     j,
                     rowVal,
                     populatedRow = false,
-                    parsedArray = [],
-                    dateArray;
+                    parsedArray = [];
 
                 for (i = 0; i < numRows; i++) {
                     row = rows[i].split(',');
@@ -100,8 +124,7 @@ var DATA = {};
 
                         }
                         if (rowObj['Date']) {
-                            dateArray = rowObj['Date'].split('/');
-                            rowObj['datetime'] = new Date(dateArray[2], dateArray[0], dateArray[1]);
+                            rowObj['datetime'] = new Date(rowObj['Date']);
                         }
                         if (populatedRow) {
                             parsedArray.push(rowObj);
@@ -113,9 +136,9 @@ var DATA = {};
 
             },
 
-            init: function () {
+            init: function (id) {
 
-                DATA.source.retrieveColumns();
+                DATA.source.createDataObject(id);
 
             }
 
@@ -123,17 +146,41 @@ var DATA = {};
 
     })();
 
-    DATA.source.init();
 
     DATA.visualize = (function () {
 
         var mapBounds = DATA.source.getBounds(),
             xAxis,
             yAxis,
-            msPerYearRate = 10000,
-            MS_PER_YEAR = 1000*60*60*24*365;
+            rate = 5,
+            increment = 'years', // per second
+            msPer = {
+              'days': 1000 * 60 * 60 * 24,
+              'weeks': 1000 * 60 * 60 * 24 * 7,
+              'months': 1000 * 60 * 60 * 24 * 30,
+              'years': 1000 * 60 * 60 * 24 * 365
+            },
+            scheduledQuakes = [];
 
         return {
+
+            setIncrement: function (newInc) {
+                if (msPer[newInc]) {
+                    increment = newInc;
+                }
+            },
+
+            setRate: function (newRate) {
+                if (newRate > 0) {
+                  rate = newRate;
+                }
+            },
+
+            getScheduledQuakes: function () {
+
+              return scheduledQuakes;
+
+            },
 
             play: function (dataArray) {
 
@@ -143,15 +190,16 @@ var DATA = {};
                     setObj,
                     setObjCoords,
                     timeBegin = subSet[0]['datetime'],
-                    timeAxis = subSet[setLen - 1]['datetime'] - timeBegin,
-                    years = timeAxis / MS_PER_YEAR,
+                    timeSpan = subSet[setLen - 1]['datetime'] - timeBegin,
+                    currRate = 1000 / (rate * msPer[increment]),
+                    realTimeSpan = timeSpan * currRate,
                     offSet,
                     objMag;
 
                 for (i = 0; i < setLen; i++) {
                     setObj = subSet[i];
                     setObjCoords = DATA.visualize.convertToXY(setObj.Latitude, setObj.Longitude);
-                    offSet = parseInt(((setObj['datetime'] - timeBegin) / timeAxis) * (msPerYearRate * years), 10);
+                    offSet = parseInt(((setObj['datetime'] - timeBegin) / timeSpan) * (realTimeSpan), 10);
                     objMag = setObj['Magnitude'] / 10;
                     DATA.visualize.createPlay(objMag, setObjCoords.x, setObjCoords.y, offSet);
                 }
@@ -159,9 +207,9 @@ var DATA = {};
             },
 
             createPlay: function (mag, x, y, time) {
-                setTimeout(function () {
+                scheduledQuakes.push(setTimeout(function () {
                         Visual.addQuake(mag, x, y);
-                }, time);
+                }, time));
             },
 
             convertToXY: function (lat, long) {
@@ -189,7 +237,8 @@ var DATA = {};
             init: function () {
 
                 DATA.visualize.setupXY();
-                DATA.visualize.play();
+                UI.enableRun();
+                //DATA.visualize.play();
 
             }
 
@@ -207,20 +256,97 @@ var UI = (function () {
 
   var me = {};
 
+  me.enableRun = function () {
+
+    $('#controls-input-run').removeClass('disabled');
+
+  };
+
+  me.enableStop = function () {
+
+    $('#controls-input-run').addClass('disabled');
+    $('#controls-input-stop').removeClass('disabled');
+
+  };
+
+  me.disableStop = function () {
+
+    $('#controls-input-run').removeClass('disabled');
+    $('#controls-input-stop').addClass('disabled');
+
+  };
+
   me.init = function () {
 
+    $('#controls-input-interval').slider({
+      range: true,
+      min: 0,
+      max: 500,
+      values: [ 75, 300 ],
+      slide: function( event, ui ) {
+        var timeInterval = ui.values;
+        // TODO(dbow): set interval.
+      }
+    });
+
+    $(document).on('click', '#controls-input-run:not(".disabled")', function () {
+
+      var rate = $('#controls-rate').val(),
+          incr = $('#controls-increment').val(),
+          intRate,
+          error = false;
+
+      $('.controls-error').hide();
+
+      if (rate) {
+        intRate = +rate;
+        if (!intRate) {
+          $('#controls-error-num').show();
+          error = true;
+        }
+      } else {
+        $('#controls-error-val').show();
+        error = true;
+      }
+
+      if (!error) {
+        Visual.start();
+        DATA.visualize.setRate(intRate);
+        DATA.visualize.setIncrement(incr);
+        DATA.visualize.play();
+        UI.enableStop();
+      }
+
+    });
+
+    $(document).on('click', '#controls-input-stop:not(".disabled")', function () {
+
+      var scheduledQuakes = DATA.visualize.getScheduledQuakes(),
+          arrayLen = scheduledQuakes.length,
+          i;
+
+      for (i = 0; i < arrayLen; i++) {
+        clearInterval(scheduledQuakes[i]);
+      }
+
+      Visual.stop();
+      UI.disableStop();
+
+    });
+    
     $(document).on('click', '#controls.inactive', function () {
 
       $('#controls').removeClass('inactive');
       $('#controls-select').hide();
-      $('#controls-close').show();
+      $('#controls-input').show();
+
     });
 
-    $(document).on('click', '#controls-close', function () {
+    $(document).on('click', '#controls-input-close', function () {
 
       $('#controls').addClass('inactive');
       $('#controls-select').show();
-      $('#controls-close').hide();
+      $('#controls-input').hide();
 
     });
 
@@ -232,6 +358,7 @@ var UI = (function () {
 
 $(function() {
 
+  DATA.source.init('1jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY'); // default data set (bay area quakes from 1973+)
   UI.init();
 
 });
