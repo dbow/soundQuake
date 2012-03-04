@@ -318,9 +318,8 @@ var UI = (function () {
       }
 
     });
-
-    $(document).on('click', '#controls-input-stop:not(".disabled")', function () {
-
+    
+    function _stop() {
       var scheduledQuakes = DATA.visualize.getScheduledQuakes(),
           arrayLen = scheduledQuakes.length,
           i;
@@ -331,8 +330,17 @@ var UI = (function () {
 
       Visual.stop();
       UI.disableStop();
-
+    }
+    
+    $(document).on('keydown', function (e) {
+      if (e.which === 32) {
+        e.preventDefault();
+        e.stopPropagation();
+        _stop();
+      }
     });
+
+    $(document).on('click', '#controls-input-stop:not(".disabled")', _stop);
     
     $(document).on('click', '#controls.inactive', function () {
 

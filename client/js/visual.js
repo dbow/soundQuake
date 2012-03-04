@@ -21,12 +21,13 @@ var Visual = (function () {
       _mouseX = 0, _mouseY = 0,
       
       _cameraMove = false,
+      _running = false,
       
       _colorSchemes = [
         [0x003AEC, 0x001440, 0x000074],
         [0xA3FFDC, 0xD9EF30, 0xB7D264],
         [0xE3E3E3, 0xCACACA, 0xB5B5B5],
-        [0xB5B5B5, 0xC97DBF, 0xEB9A8B],
+        [0xFF5713, 0xC97DBF, 0xEB9A8B],
         [0xCED06C, 0xFFAA00, 0xE28D00]
       ];
       
@@ -266,6 +267,7 @@ _camera.position.z = 300;
     _scene.add(pointLight);
 
     me.start();
+    me.tick();
   };
   
   me.tick = function () {
@@ -274,44 +276,46 @@ _camera.position.z = 300;
         cube,
         i, j;
 
-    if (me.play) {
+    if (true || _running) {
       requestAnimationFrame(me.tick);
     }
     
-    if (_tick % 3 === 0) {
-      for (var i = 0, l = _quakes.length; i < l; i++) {
-        quake = _quakes[i];
-        
-        if (quake.mag > 0 && quake.radius < PLANE_WIDTH) {
-          quakes.push(quake);
+    if (_running) {
+      if (_tick % 3 === 0) {
+        for (var i = 0, l = _quakes.length; i < l; i++) {
+          quake = _quakes[i];
+          
+          if (quake.mag > 0 && quake.radius < PLANE_WIDTH) {
+            quakes.push(quake);
+          }
+          
+          _drawQuake(quake);
         }
-        
-        _drawQuake(quake);
+        _quakes = quakes;
       }
-      _quakes = quakes;
-    }
-
-    for (i = 0; i < PLANE_WIDTH; i++) {
-      for (j = 0; j < PLANE_WIDTH; j++) {
-        cube = _plane[i][j];
-        
-        if (cube.mag > 0) {
-          _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
-          cube.mag -= 0.002;
-          cube.time++;
-        }
-        else {
-          cube.time = 0;
-        }
-        
-        if (cube.epi >= 0 && cube.time - cube.epi > 50) {
-          cube.mesh.material = cube.oldMaterial;
-          cube.epi = 0;
+  
+      for (i = 0; i < PLANE_WIDTH; i++) {
+        for (j = 0; j < PLANE_WIDTH; j++) {
+          cube = _plane[i][j];
+          
+          if (cube.mag > 0) {
+            _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
+            cube.mag -= 0.002;
+            cube.time++;
+          }
+          else {
+            cube.time = 0;
+          }
+          
+          if (cube.epi >= 0 && cube.time - cube.epi > 50) {
+            cube.mesh.material = cube.oldMaterial;
+            cube.epi = 0;
+          }
         }
       }
+  
+      _tick++;
     }
-
-    _tick++;
     
     me.render();
   };
@@ -365,7 +369,7 @@ _camera.position.z = 300;
   };
   
   me.start = function () {
-    if (me.play !== true) {
+    if (_running !== true) {
       _quakes = [];
       for (i = 0; i < PLANE_WIDTH; i++) {
         for (j = 0; j < PLANE_WIDTH; j++) {
@@ -379,13 +383,17 @@ _camera.position.z = 300;
         }
       }
     
-      me.play = true;
-      me.tick();
+      _running = true;
+      //me.tick();
     }
   };
   
+  me.play = function () {
+    _running = true;
+  };
+  
   me.stop = function () {
-    me.play = false;
+    _running = false;
   };
   
   me.startCameraMove = function () {
