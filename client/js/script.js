@@ -423,6 +423,11 @@ var UI = (function () {
         e.stopPropagation();
         _stop();
       }
+      else if (e.which === 67) {
+        Visual.toggleCameraMove();
+      }
+      
+      console.log(e.which);
     });
 
     $(document).on('click', '#controls-input-stop:not(".disabled")', _stop);
@@ -441,7 +446,7 @@ var UI = (function () {
       $('#controls').addClass('inactive');
       $('#controls-select').show();
       $('#controls-input').hide();
-      Visual.startCameraMove();
+      //Visual.startCameraMove();
     });
     
     $('#controls-select-colors').on('change', function () {

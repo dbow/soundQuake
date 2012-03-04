@@ -395,6 +395,10 @@ _camera.position.z = 300;
     _running = false;
   };
   
+  me.toggleCameraMove = function () {
+    _cameraMove = !_cameraMove;
+  };
+  
   me.startCameraMove = function () {
     _cameraMove = true;
   };
