@@ -107,6 +107,14 @@ td { vertical-align: top; }
         text-align: center;
     }
 
+    #controls-instructions {
+        position: absolute;
+        width: 250px;
+        height: 50px;
+        left: 10px;
+        bottom: 20px;
+    }
+
     #controls-input {
         display: none;
     }

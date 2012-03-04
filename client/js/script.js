@@ -292,6 +292,9 @@ var DATA = {};
             },
 
             createPlay: function (param, x, y, time) {
+                if (param < 0) {
+                  param = 0;
+                }
                 scheduledQuakes.push(setTimeout(function () {
                         Visual.addQuake(param, x, y);
                 }, time));
@@ -363,17 +366,6 @@ var UI = (function () {
 
   me.init = function () {
 
-    $('#controls-input-interval').slider({
-      range: true,
-      min: DATA.source.getEarliest(),
-      max: DATA.source.getLatest(),
-      values: [DATA.source.getEarliest(), DATA.source.getLatest()],
-      slide: function( event, ui ) {
-        var timeInterval = ui.values;
-        // TODO(dbow): set interval.
-      }
-    });
-
     $(document).on('click', '#controls-input-run:not(".disabled")', function () {
 
       var rate = $('#controls-rate').val(),
@@ -426,8 +418,6 @@ var UI = (function () {
       else if (e.which === 67) {
         Visual.toggleCameraMove();
       }
-      
-      console.log(e.which);
     });
 
     $(document).on('click', '#controls-input-stop:not(".disabled")', _stop);
