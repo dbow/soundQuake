@@ -27,6 +27,10 @@ var DATA = {};
                 currFtId = newId;
             },
 
+            getBounds: function () {
+              return latLngBounds;
+            },
+
             getColumns: function () {
                 return dataObjects[currFtId].columns;
             },
@@ -35,8 +39,16 @@ var DATA = {};
                 return dataObjects[currFtId].rows;
             },
 
-            getBounds: function () {
-                return latLngBounds;
+            getParams: function () {
+                return dataObjects[currFtId].params;
+            },
+
+            getEarliest: function () {
+                return dataObjects[currFtId].earliest;
+            },
+
+            getLatest: function () {
+                return dataObjects[currFtId].latest;
             },
 
             createDataObject: function (id) {
@@ -45,6 +57,9 @@ var DATA = {};
                     var newObj = {};
                     newObj.columns = ['Date', 'Latitude', 'Longitude']; // Required Fusion Table columns.
                     newObj.rows = [];
+                    newObj.earliest;
+                    newObj.latest;
+                    newObj.params = {};  // Up to two other numeric columns.
                     dataObjects[id] = newObj;
                 }
 
@@ -68,6 +83,11 @@ var DATA = {};
                             if (dataObj.columns.length < 5) {
                               if (colObj['type'] === 'number' && dataObj.columns.indexOf(colObj['name']) < 0) {
                                 dataObj.columns.push(colObj['name']);
+                                function ParamsObj () {
+                                  this.lowest = 0;
+                                  this.highest = 0;
+                                }
+                                dataObj.params[colObj['name']] = new ParamsObj;
                               }
                             }
                         }
@@ -89,7 +109,7 @@ var DATA = {};
                         fullSelectUrl = encodeURI(SERVER_URL + selectUrl + selectCols + ' FROM ' + currFtId);
 
                     $.get(fullSelectUrl, function(data) {
-                        dataObj.rows = DATA.source.parseResponse(data);
+                        dataObj.rows = DATA.source.parseResponse(data, true);
                         DATA.visualize.init();
                     });
 
@@ -97,7 +117,7 @@ var DATA = {};
 
             },
 
-            parseResponse: function (data) {
+            parseResponse: function (data, rowParse) {
 
                 var rows = data.split(/\n/),
                     columns = rows.shift().split(','),
@@ -108,32 +128,74 @@ var DATA = {};
                     rowObj,
                     j,
                     rowVal,
+                    reqRow = false,
                     populatedRow = false,
+                    validRow = true,
                     parsedArray = [];
 
                 for (i = 0; i < numRows; i++) {
                     row = rows[i].split(',');
                     if (row.length === numColumns) {
                         rowObj = {};
+                        populatedRow = false;
+                        validRow = true;
                         for (j=0; j < numColumns; j++) {
                             rowVal = row[j];
-                            if (populatedRow !== true && rowVal !== '') {
-                                populatedRow = true;
+                            if (!populatedRow && rowVal !== '') {
+                              populatedRow = true;
+                            }
+                            // Require a Date, Lat and Long for each row if rowParse is true.
+                            if (rowParse) {
+                              reqRow = ['Date', 'Latitude', 'Longitude'].indexOf(columns[j]) >= 0;
+                              if (validRow && rowVal === '' && reqRow) {
+                                validRow = false;
+                              }
+                              // Convert non-req rows (numeric) to numbers.
+                              if (!reqRow) {
+                                rowVal = +rowVal;
+                              }
                             }
                             rowObj[columns[j]] = rowVal;
-
+                            if (rowParse) {
+                              DATA.source.checkParams(columns[j], rowVal);
+                            }
                         }
                         if (rowObj['Date']) {
                             rowObj['datetime'] = new Date(rowObj['Date']);
+                            if (rowParse) {
+                              DATA.source.checkDateOrder(rowObj['datetime']);
+                            }
                         }
-                        if (populatedRow) {
+                        if (populatedRow && validRow) {
                             parsedArray.push(rowObj);
-                            populatedRow = false;
                         }
                     }
                 }
                 return parsedArray;
 
+            },
+
+            checkParams: function (columnVal, rowVal) {
+              var dataObj = dataObjects[currFtId],
+                  param = dataObj.params[columnVal];
+              if (param) {
+                if (!param.lowest || rowVal < param.lowest) {
+                  param.lowest = rowVal;
+                }
+                if (!param.highest || rowVal > param.highest) {
+                  param.highest = rowVal;
+                }
+              }
+            },
+
+            checkDateOrder: function (datetime) {
+                var dataObj = dataObjects[currFtId];
+                if (!dataObj.earliest || datetime < dataObj.earliest) {
+                  dataObj.earliest = datetime;
+                }
+                if (!dataObj.latest || datetime > dataObj.latest) {
+                  dataObj.latest = datetime;
+                }
             },
 
             init: function (id) {
@@ -194,21 +256,45 @@ var DATA = {};
                     currRate = 1000 / (rate * msPer[increment]),
                     realTimeSpan = timeSpan * currRate,
                     offSet,
-                    objMag;
+                    params = DATA.source.getParams(),
+                    param,
+                    paramObj,
+                    newParamObj,
+                    firstParam,
+                    secondParam,
+                    objParam;
+
+                // Retrieve numeric params of the dataset
+                for (param in params) {
+                  if (params.hasOwnProperty(param)) {
+                    paramObj = params[param];
+                    newParamObj = {
+                      'name': param,
+                      'highest': paramObj.highest,
+                      'lowest': paramObj.lowest
+                    };
+                    if (!firstParam) {
+                      firstParam = newParamObj;
+                    } else {
+                      secondParam = newParamObj;
+                    }
+                  }
+                }
 
                 for (i = 0; i < setLen; i++) {
                     setObj = subSet[i];
                     setObjCoords = DATA.visualize.convertToXY(setObj.Latitude, setObj.Longitude);
                     offSet = parseInt(((setObj['datetime'] - timeBegin) / timeSpan) * (realTimeSpan), 10);
-                    objMag = setObj['Magnitude'] / 10;
-                    DATA.visualize.createPlay(objMag, setObjCoords.x, setObjCoords.y, offSet);
+                    // TODO(dbow): Abstract magnitude.
+                    objParam = (setObj[firstParam.name] - firstParam.lowest) / (firstParam.highest - firstParam.lowest);
+                    DATA.visualize.createPlay(objParam, setObjCoords.x, setObjCoords.y, offSet);
                 }
 
             },
 
-            createPlay: function (mag, x, y, time) {
+            createPlay: function (param, x, y, time) {
                 scheduledQuakes.push(setTimeout(function () {
-                        Visual.addQuake(mag, x, y);
+                        Visual.addQuake(param, x, y);
                 }, time));
             },
 
@@ -280,9 +366,9 @@ var UI = (function () {
 
     $('#controls-input-interval').slider({
       range: true,
-      min: 0,
-      max: 500,
-      values: [ 75, 300 ],
+      min: DATA.source.getEarliest(),
+      max: DATA.source.getLatest(),
+      values: [DATA.source.getEarliest(), DATA.source.getLatest()],
       slide: function( event, ui ) {
         var timeInterval = ui.values;
         // TODO(dbow): set interval.
