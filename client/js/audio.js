@@ -57,12 +57,25 @@ var Audio = (function () {
 	  bufferList = list;
 	}
 
- 	me.playSample = function(ranNum, x, y) {
+ 	me.playSample = function(ranNum, x, y, mag) {
+		var gainNode = context.createGainNode();
+		var filter = context.createBiquadFilter();
 		var source = context.createBufferSource();
+
 		source.buffer = bufferList[ranNum];
-		source.connect(panner);
+		
+		// Create the audio graph.
+		source.connect(gainNode);
+		gainNode.connect(filter);
+		filter.connect(panner);
 		panner.connect(context.destination);
+		
+		gainNode.gain.value = (mag / 12) + 0.2;
+		
+		filter.type = 0; // Low-pass filter. See BiquadFilterNode docs
+		filter.frequency.value = (mag * 1000) + 50;
 		panner.setPosition(x, y, 0);
+		
 		source.noteOn(0);
 	}
 

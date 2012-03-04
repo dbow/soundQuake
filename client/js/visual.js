@@ -291,24 +291,24 @@ _camera.position.z = 300;
   };
   
   me.addQuake = function (mag, x, y) {
-    //console.log('QUAKE!', mag, x, y);
     var cube = _plane[Math.floor(x)][Math.floor(y)];
     cube.mesh.material = cubeMaterial4;
     cube.epi = cube.time;
-    
+	    
     _quakes.push({
       mag: mag,
       radius: 0,
       x: x,
       y: y,
       cells: {}
-    });
-
-	var posX = x / me.getBounds()[0]; 
-	var posY = y / me.getBounds()[1]; 
+    });	
 	
-	var randomnumber=Math.floor(Math.random()*5)
-	Audio.playSample(randomnumber, posX, posY);
+	var posX = ((x / me.getBounds().x) * 2) - 1; 
+	var posY = ((y / me.getBounds().y) * 2) - 1;
+	
+	//console.log('QUAKE!', mag, posX, posY);
+	var randomnumber = Math.floor( Math.random() * 5 );
+	Audio.playSample(randomnumber, posX, posY, mag);
   };
   
   me.render = function () {
