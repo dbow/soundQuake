@@ -157,8 +157,8 @@ cube.geometry.dynamic = true;
         
           cubeMaterial);
           
-        cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (width + 2);
-        cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (depth + 2);
+        cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (width);
+        cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (depth);
         cube.position.y = CUBE_HEIGHT / 2;
         
         //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
@@ -169,38 +169,23 @@ cube.geometry.dynamic = true;
     }
       
     mycube = cube;
-    //cube.rotation.y = 0.5;
     
     // add the cube to the scene
     
     // create a point light
-    var pointLight =
-      new THREE.PointLight(0xFFFFFF);
+    var pointLight = new THREE.PointLight(0xFFFFFF);
     
     // set its position
     pointLight.position.x = 10;
-    pointLight.position.y = 50;
+    pointLight.position.y = 300;
     pointLight.position.z = 130;
     
     // add to the scene
     _scene.add(pointLight);
     
-    //hardcode
-    _quakes.push({
-      mag: 1,
-      radius: 0,
-      x: 0,
-      y: 20,
-      cells: {}
-    });
-    
-    _quakes.push({
-      mag: 1,
-      radius: 0,
-      x: 20,
-      y: 0,
-      cells: {}
-    });
+    //hardcode    
+    me.addQuake(1, 20, 0);
+    me.addQuake(1, 0, 20);
     
     me.play = true;
     me.tick();
@@ -246,6 +231,16 @@ cube.geometry.dynamic = true;
     _tick++;
     
     me.render();
+  };
+  
+  me.addQuake = function (mag, x, y) {
+    _quakes.push({
+      mag: mag,
+      radius: 0,
+      x: x,
+      y: y,
+      cells: {}
+    });
   };
   
   me.render = function () {
