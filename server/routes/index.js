@@ -15,3 +15,36 @@ exports.index = function(req, res){
     res.end();
 
 };
+
+var dataCache = {};
+
+exports.data = function(req, response){
+
+    var http = require('http'),
+        query = encodeURI(req.param('query', '')),
+        options = {
+            host: 'www.google.com',
+            port: 80,
+            path: '/fusiontables/api/' + query
+        },
+        responseData = '';
+
+    if (dataCache[query]) {
+        response.send(dataCache[query]);
+    } else {
+        http.get(options, function(res) {
+            if (res.statusCode !== 1000) {
+                res.setEncoding('utf8');
+                res.on('data', function (chunk) {
+                    responseData += chunk;
+                    dataCache[query] = responseData;
+                    response.send(responseData);
+                });
+            }
+            res.on('error', function(e) {
+                console.log("Got error: " + e.message);
+            });
+        });
+    }
+
+};
