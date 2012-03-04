@@ -3,6 +3,8 @@ var Visual = (function () {
   
       WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight,
+      HALF_WIDTH = WIDTH / 2,
+      HALF_HEIGHT = HEIGHT / 2,
       PLANE_WIDTH = 30,
       PLANE_HEIGHT = 30,
       
@@ -15,10 +17,22 @@ var Visual = (function () {
       _renderer,
       _camera,
       
-      _tick = 0;
+      _tick = 0,
+      _mouseX = 0, _mouseY = 0,
+      
+      _cameraMove = false,
+      _running = false,
+      
+      _colorSchemes = [
+        [0x003AEC, 0x001440, 0x000074],
+        [0xA3FFDC, 0xD9EF30, 0xB7D264],
+        [0xE3E3E3, 0xCACACA, 0xB5B5B5],
+        [0xFF5713, 0xC97DBF, 0xEB9A8B],
+        [0xCED06C, 0xFFAA00, 0xE28D00]
+      ];
       
   // create the cube's material
-  var cubeMaterial1 =
+  var _cubeMaterial1 =
     new THREE.MeshPhongMaterial(
       {
         //color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
@@ -26,15 +40,15 @@ var Visual = (function () {
         //color: 247 | 164 << 8
         color: 0x003AEC,
       }),
-      cubeMaterial2 = new THREE.MeshPhongMaterial({
+      _cubeMaterial2 = new THREE.MeshPhongMaterial({
         //color: 48 | 136 << 8 | 42 << 16
         color: 0x001440
       }),
-      cubeMaterial3 = new THREE.MeshPhongMaterial({
+      _cubeMaterial3 = new THREE.MeshPhongMaterial({
         //color: 120 | 102 << 8 | 0 << 16
         color: 0x000074
       }),
-      cubeMaterial4 = new THREE.MeshPhongMaterial({
+      _cubeMaterial4 = new THREE.MeshPhongMaterial({
         color: 0xffffff
       });
       
@@ -121,12 +135,25 @@ cube.geometry.dynamic = true;
     quake.mag -= 0.010;
     quake.radius += 0.25;
   }
+  
+  function _mousemove(event) {
+		_mouseX = event.clientX - HALF_WIDTH;
+		_mouseY = event.clientY - HALF_HEIGHT;
+	}
 
   me.getBounds = function () {
       return {
           x: PLANE_WIDTH,
           y: PLANE_HEIGHT
       };
+  };
+  
+  me.selectColorScheme = function (colorSchemeId) {
+    console.log('hi', colorSchemeId);
+    var scheme = _colorSchemes[colorSchemeId - 1];
+    _cubeMaterial1.color.setHex(scheme[0]);
+    _cubeMaterial2.color.setHex(scheme[1]);
+    _cubeMaterial3.color.setHex(scheme[2]);
   };
   
   me.init = function () {
@@ -139,6 +166,8 @@ cube.geometry.dynamic = true;
     // get the DOM element to attach to
     // - assume we've got jQuery to hand
     var $container = $('#visual');
+    
+    $container.on('mousemove', _mousemove);
     
     // create a WebGL renderer, camera
     // and a scene
@@ -167,7 +196,7 @@ _camera.position.z = 300;
     _camera.position.y = 600;
     _camera.position.x = 0;
     
-    _camera.rotation.x = -1.5;
+    _camera.rotation.x = -Math.PI / 2;
     
     // start the renderer
     _renderer.setSize(WIDTH, HEIGHT);
@@ -178,8 +207,8 @@ _camera.position.z = 300;
     
     // set up cube size
     var height = 50,
-        width = 20,
-        depth = 20,
+        width = 19,
+        depth = 19,
         cube, func;
     
     // create the plane
@@ -190,13 +219,13 @@ _camera.position.z = 300;
         pixel = pixels[j * (PLANE_WIDTH + 10) + i];
         
         if (pixel[1] === 164) {
-          func = cubeMaterial1;
+          func = _cubeMaterial1;
         }
         else if (pixel[1] === 136) {
-          func = cubeMaterial2;
+          func = _cubeMaterial2;
         }
         else {
-          func = cubeMaterial3;
+          func = _cubeMaterial3;
         }
       
         // create a new mesh with cube geometry
@@ -238,6 +267,7 @@ _camera.position.z = 300;
     _scene.add(pointLight);
 
     me.start();
+    me.tick();
   };
   
   me.tick = function () {
@@ -246,51 +276,54 @@ _camera.position.z = 300;
         cube,
         i, j;
 
-    if (me.play) {
+    if (true || _running) {
       requestAnimationFrame(me.tick);
     }
     
-    if (_tick % 3 === 0) {
-      for (var i = 0, l = _quakes.length; i < l; i++) {
-        quake = _quakes[i];
-        
-        if (quake.mag > 0 && quake.radius < PLANE_WIDTH) {
-          quakes.push(quake);
+    if (_running) {
+      if (_tick % 3 === 0) {
+        for (var i = 0, l = _quakes.length; i < l; i++) {
+          quake = _quakes[i];
+          
+          if (quake.mag > 0 && quake.radius < PLANE_WIDTH) {
+            quakes.push(quake);
+          }
+          
+          _drawQuake(quake);
         }
-        
-        _drawQuake(quake);
+        _quakes = quakes;
       }
-      _quakes = quakes;
-    }
-
-    for (i = 0; i < PLANE_WIDTH; i++) {
-      for (j = 0; j < PLANE_WIDTH; j++) {
-        cube = _plane[i][j];
-        
-        if (cube.mag > 0) {
-          _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
-          cube.mag -= 0.002;
-          cube.time++;
-        }
-        else {
-          cube.time = 0;
-        }
-        
-        if (cube.epi >= 0 && cube.time - cube.epi > 50) {
-          cube.mesh.material = cube.oldMaterial;
-          cube.epi = 0;
+  
+      for (i = 0; i < PLANE_WIDTH; i++) {
+        for (j = 0; j < PLANE_WIDTH; j++) {
+          cube = _plane[i][j];
+          
+          if (cube.mag > 0) {
+            _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
+            cube.mag -= 0.002;
+            cube.time++;
+          }
+          else {
+            cube.time = 0;
+          }
+          
+          if (cube.epi >= 0 && cube.time - cube.epi > 50) {
+            cube.mesh.material = cube.oldMaterial;
+            cube.epi = 0;
+          }
         }
       }
+  
+      _tick++;
     }
-
-    _tick++;
     
     me.render();
   };
   
   me.addQuake = function (mag, x, y) {
+    console.log('QUAKE!', mag, x, y);
     var cube = _plane[Math.floor(x)][Math.floor(y)];
-    cube.mesh.material = cubeMaterial4;
+    cube.mesh.material = _cubeMaterial4;
     cube.epi = cube.time;
 	    
     _quakes.push({
@@ -310,31 +343,63 @@ _camera.position.z = 300;
   };
   
   me.render = function () {
+    //linear
+    if (_cameraMove) {
+    /*
+      _camera.position.y -= (_mouseY) * .01;
+      _camera.position.x -= (_mouseX) * .01;
+*/
+    
+      _camera.position.y = 600 * Math.cos(_mouseY * 0.004);
+      _camera.position.z = 600 * Math.sin(_mouseY * 0.004);
+      _camera.rotation.x = _mouseY * (Math.PI / HEIGHT) - Math.PI / 2;
+      
+      _camera.position.x = 600 * Math.sin(_mouseX * 0.003);
+      _camera.rotation.y = _mouseX * Math.PI / WIDTH / 2;
+    }
+
+    //_camera.position.y += 600 * Math.cos(_mouseY * 0.008 - (_camera.position.y / 600));
+    //_camera.position.z += Math.sin(_mouseY * 0.008);
+    //_camera.rotation.x = _mouseY * (Math.PI / HALF_HEIGHT) - Math.PI / 2;
+
+    //mycamera = _camera;
+    //_camera.lookAt(_scene.position);
     _renderer.render(_scene, _camera);
   };
   
   me.start = function () {
-    if (me.play !== true) {
-      me.play = true;
-      me.tick();
+    if (_running !== true) {
+      _quakes = [];
+      for (i = 0; i < PLANE_WIDTH; i++) {
+        for (j = 0; j < PLANE_WIDTH; j++) {
+          cube = _plane[i][j];
+          
+          _setCubeHeight(cube.mesh, 0);
+          cube.mag = 0
+          cube.time = 0;
+          cube.mesh.material = cube.oldMaterial;
+          cube.epi = 0;
+        }
+      }
+    
+      _running = true;
+      //me.tick();
     }
   };
   
+  me.play = function () {
+    _running = true;
+  };
+  
   me.stop = function () {
-    me.play = false;
-    
-    _quakes = [];
-    for (i = 0; i < PLANE_WIDTH; i++) {
-      for (j = 0; j < PLANE_WIDTH; j++) {
-        cube = _plane[i][j];
-        
-        _setCubeHeight(cube.mesh, 0);
-        cube.mag = 0
-        cube.time = 0;
-        cube.mesh.material = cube.oldMaterial;
-        cube.epi = 0;
-      }
-    }
+    _running = false;
+  };
+  
+  me.startCameraMove = function () {
+    _cameraMove = true;
+  };
+  me.stopCameraMove = function () {
+    _cameraMove = false;
   };
 
   return me;
