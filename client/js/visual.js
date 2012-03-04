@@ -289,6 +289,8 @@ _camera.position.z = 300;
   };
   
   me.addQuake = function (mag, x, y) {
+    console.log('QUAKE!', mag, x, y);
+
     var cube = _plane[Math.floor(x)][Math.floor(y)];
     cube.mesh.material = cubeMaterial4;
     cube.epi = cube.time;
