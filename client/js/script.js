@@ -350,6 +350,10 @@ var UI = (function () {
       $('#controls-input').hide();
       Visual.startCameraMove();
     });
+    
+    $('#controls-select-colors').on('change', function () {
+      Visual.selectColorScheme($(this).val());
+    });
 
   };
 

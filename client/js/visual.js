@@ -20,10 +20,18 @@ var Visual = (function () {
       _tick = 0,
       _mouseX = 0, _mouseY = 0,
       
-      _cameraMove = true;
+      _cameraMove = false,
+      
+      _colorSchemes = [
+        [0x003AEC, 0x001440, 0x000074],
+        [0xA3FFDC, 0xD9EF30, 0xB7D264],
+        [0xE3E3E3, 0xCACACA, 0xB5B5B5],
+        [0xB5B5B5, 0xC97DBF, 0xEB9A8B],
+        [0xCED06C, 0xFFAA00, 0xE28D00]
+      ];
       
   // create the cube's material
-  var cubeMaterial1 =
+  var _cubeMaterial1 =
     new THREE.MeshPhongMaterial(
       {
         //color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
@@ -31,15 +39,15 @@ var Visual = (function () {
         //color: 247 | 164 << 8
         color: 0x003AEC,
       }),
-      cubeMaterial2 = new THREE.MeshPhongMaterial({
+      _cubeMaterial2 = new THREE.MeshPhongMaterial({
         //color: 48 | 136 << 8 | 42 << 16
         color: 0x001440
       }),
-      cubeMaterial3 = new THREE.MeshPhongMaterial({
+      _cubeMaterial3 = new THREE.MeshPhongMaterial({
         //color: 120 | 102 << 8 | 0 << 16
         color: 0x000074
       }),
-      cubeMaterial4 = new THREE.MeshPhongMaterial({
+      _cubeMaterial4 = new THREE.MeshPhongMaterial({
         color: 0xffffff
       });
       
@@ -139,6 +147,14 @@ cube.geometry.dynamic = true;
       };
   };
   
+  me.selectColorScheme = function (colorSchemeId) {
+    console.log('hi', colorSchemeId);
+    var scheme = _colorSchemes[colorSchemeId - 1];
+    _cubeMaterial1.color.setHex(scheme[0]);
+    _cubeMaterial2.color.setHex(scheme[1]);
+    _cubeMaterial3.color.setHex(scheme[2]);
+  };
+  
   me.init = function () {
     // set some camera attributes
     var VIEW_ANGLE = 45,
@@ -202,13 +218,13 @@ _camera.position.z = 300;
         pixel = pixels[j * (PLANE_WIDTH + 10) + i];
         
         if (pixel[1] === 164) {
-          func = cubeMaterial1;
+          func = _cubeMaterial1;
         }
         else if (pixel[1] === 136) {
-          func = cubeMaterial2;
+          func = _cubeMaterial2;
         }
         else {
-          func = cubeMaterial3;
+          func = _cubeMaterial3;
         }
       
         // create a new mesh with cube geometry
@@ -304,7 +320,7 @@ _camera.position.z = 300;
     console.log('QUAKE!', mag, x, y);
     
     var cube = _plane[Math.floor(x)][Math.floor(y)];
-    cube.mesh.material = cubeMaterial4;
+    cube.mesh.material = _cubeMaterial4;
     cube.epi = cube.time;
 	    
     _quakes.push({

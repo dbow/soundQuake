@@ -80,7 +80,7 @@ td { vertical-align: top; }
 
 #controls {
     position: absolute;
-    height: 70px;
+    height: 105px;
     width: auto;
     left: 0px;
     bottom: 0px;
@@ -93,15 +93,17 @@ td { vertical-align: top; }
 }
 
 #controls.inactive {
-    width: 250px;
-    bottom: 30px;
+    width: 180px;
+    height: 40px;
+    font-size: 20px;
+    bottom: 0px;
     left: 30px;
     cursor: pointer;
 }
 
     #controls-select {
-        font-size: 40px;
-        margin-top: 9px;
+        font-size: 20px;
+        margin-top: 6px;
         text-align: center;
     }
 
@@ -147,12 +149,12 @@ td { vertical-align: top; }
 
         .controls-input-button {
             position: absolute;
-            background-color: #777;
-            color: white;
+            background-color: #eee;
+            color: #333;
             height: 26px;
             width: 70px;
             bottom: 22px;
-            border-radius: 8px;
+            /* border-radius: 8px; */
             text-align: center;
             padding-top: 4px;
             cursor: pointer;
@@ -167,8 +169,8 @@ td { vertical-align: top; }
             }
 
             .disabled {
-                background-color: #dbdbdb;
-                cursor: auto;
+                background-color: #777;
+                cursor: default;
             }
 
         #controls-input-close {
