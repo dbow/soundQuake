@@ -237,9 +237,7 @@ _camera.position.z = 300;
     // add to the scene
     _scene.add(pointLight);
 
-    me.play = true;
-    me.tick();
-
+    me.start();
   };
   
   me.tick = function () {
@@ -268,9 +266,9 @@ _camera.position.z = 300;
     for (i = 0; i < PLANE_WIDTH; i++) {
       for (j = 0; j < PLANE_WIDTH; j++) {
         cube = _plane[i][j];
-        _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
         
         if (cube.mag > 0) {
+          _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
           cube.mag -= 0.002;
           cube.time++;
         }
@@ -313,6 +311,28 @@ _camera.position.z = 300;
   
   me.render = function () {
     _renderer.render(_scene, _camera);
+  };
+  
+  me.start = function () {
+    me.play = true;
+    me.tick();
+  };
+  
+  me.stop = function () {
+    me.play = false;
+    
+    _quakes = [];
+    for (i = 0; i < PLANE_WIDTH; i++) {
+      for (j = 0; j < PLANE_WIDTH; j++) {
+        cube = _plane[i][j];
+        
+        _setCubeHeight(cube.mesh, 0);
+        cube.mag = 0
+        cube.time = 0;
+        cube.mesh.material = cube.oldMaterial;
+        cube.epi = 0;
+      }
+    }
   };
 
   return me;
