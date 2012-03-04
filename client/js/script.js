@@ -8,12 +8,12 @@ var DATA = {};
 
     DATA.source = (function () {
 
-        var FT_ID = '1jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY',
+        var currFtId = '',
+            dataObjects = {},
             SERVER_URL = '/data?query=',
-            describeUrl = encodeURI('query?sql=DESCRIBE ' + FT_ID),
+            describeUrl = 'query?sql=DESCRIBE ',
             selectUrl = 'query?sql=SELECT ',
-            columns = [],
-            rows,
+            // Default map window (roughly the bay area)
             latLngBounds = {
                 TOP_LAT: 38.090668,
                 BOT_LAT: 37.342867,
@@ -23,30 +23,53 @@ var DATA = {};
 
         return {
 
+            setCurrId: function (newId) {
+                currFtId = newId;
+            },
+
             getColumns: function () {
-                return columns;
+                return dataObjects[currFtId].columns;
             },
 
             getRows: function () {
-                return rows;
+                return dataObjects[currFtId].rows;
             },
 
             getBounds: function () {
                 return latLngBounds;
             },
 
+            createDataObject: function (id) {
+
+                if (!dataObjects[id]) {
+                    var newObj = {};
+                    newObj.columns = ['Date', 'Latitude', 'Longitude']; // Required Fusion Table columns.
+                    newObj.rows = [];
+                    dataObjects[id] = newObj;
+                }
+
+                DATA.source.setCurrId(id);
+                DATA.source.retrieveColumns();
+
+            },
+
             retrieveColumns: function () {
 
-                $.get(SERVER_URL + describeUrl, function(data) {
+                $.get(encodeURI(SERVER_URL + describeUrl + currFtId), function(data) {
 
                     var parsedData = DATA.source.parseResponse(data),
                         obj,
-                        colObj;
+                        colObj,
+                        dataObj = dataObjects[currFtId];
 
                     for (obj in parsedData) {
                         if (parsedData.hasOwnProperty(obj)) {
                             colObj = parsedData[obj];
-                            columns.push(colObj['name']);
+                            if (dataObj.columns.length < 5) {
+                              if (colObj['type'] === 'number' && dataObj.columns.indexOf(colObj['name']) < 0) {
+                                dataObj.columns.push(colObj['name']);
+                              }
+                            }
                         }
                     }
 
@@ -58,13 +81,15 @@ var DATA = {};
 
             retrieveRows: function () {
 
-                if (columns.length > 0) {
+                var dataObj = dataObjects[currFtId];
 
-                    var selectCols = "'" + columns.join("', '") + "'",
-                        fullSelectUrl = encodeURI(SERVER_URL + selectUrl + selectCols + ' FROM ' + FT_ID);
+                if (dataObj.columns.length > 0) {
+
+                    var selectCols = "'" + dataObj.columns.join("', '") + "'",
+                        fullSelectUrl = encodeURI(SERVER_URL + selectUrl + selectCols + ' FROM ' + currFtId);
 
                     $.get(fullSelectUrl, function(data) {
-                        rows = DATA.source.parseResponse(data);
+                        dataObj.rows = DATA.source.parseResponse(data);
                         DATA.visualize.init();
                     });
 
@@ -84,8 +109,7 @@ var DATA = {};
                     j,
                     rowVal,
                     populatedRow = false,
-                    parsedArray = [],
-                    dateArray;
+                    parsedArray = [];
 
                 for (i = 0; i < numRows; i++) {
                     row = rows[i].split(',');
@@ -100,8 +124,7 @@ var DATA = {};
 
                         }
                         if (rowObj['Date']) {
-                            dateArray = rowObj['Date'].split('/');
-                            rowObj['datetime'] = new Date(dateArray[2], dateArray[0], dateArray[1]);
+                            rowObj['datetime'] = new Date(rowObj['Date']);
                         }
                         if (populatedRow) {
                             parsedArray.push(rowObj);
@@ -113,9 +136,9 @@ var DATA = {};
 
             },
 
-            init: function () {
+            init: function (id) {
 
-                DATA.source.retrieveColumns();
+                DATA.source.createDataObject(id);
 
             }
 
@@ -123,7 +146,6 @@ var DATA = {};
 
     })();
 
-    DATA.source.init();
 
     DATA.visualize = (function () {
 
@@ -139,14 +161,6 @@ var DATA = {};
               'years': 1000 * 60 * 60 * 24 * 365
             },
             scheduledQuakes = [];
-
-            // TODO(dbow): Notes on calculating time offset... remove soon!
-            // 5 years (timeSpan) per second (realTime)
-            // 5 msPer['years'] (timeSpan) per second (realTime)
-            // 5 msPer['years'] (timeSpan) per 1000 ms (realTime)
-            // 1000 ms (realTime) per 5 msPer['years'] (timeSpan)
-            // 1000 / 5 msPer['years'] (realTime) per 1 ms (timeSpan)
-            // rate: x ms (realTime) per 1 ms (timeSpan)
 
         return {
 
@@ -344,6 +358,7 @@ var UI = (function () {
 
 $(function() {
 
+  DATA.source.init('1jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY'); // default data set (bay area quakes from 1973+)
   UI.init();
 
 });
