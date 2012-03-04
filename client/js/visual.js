@@ -64,8 +64,6 @@ cube.geometry.dynamic = true;
       if (epi) {
         //cube.mesh.material.color.setRGB(255,255,255);
         //console.log(cube);
-        cube.mesh.material = cubeMaterial4;
-        cube.epi = cube.time;
       }
           
       if (!quake.cells[x + ' ' + y]) {
@@ -293,7 +291,11 @@ _camera.position.z = 300;
   };
   
   me.addQuake = function (mag, x, y) {
-    console.log('QUAKE!', mag, x, y);
+    //console.log('QUAKE!', mag, x, y);
+    var cube = _plane[Math.floor(x)][Math.floor(y)];
+    cube.mesh.material = cubeMaterial4;
+    cube.epi = cube.time;
+    
     _quakes.push({
       mag: mag,
       radius: 0,
