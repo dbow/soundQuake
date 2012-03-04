@@ -146,13 +146,12 @@ td { vertical-align: top; }
 
         }
 
-        #controls-input-run {
+        .controls-input-button {
             position: absolute;
             background-color: #777;
             color: white;
             height: 26px;
             width: 70px;
-            right: 16%;
             bottom: 22px;
             border-radius: 8px;
             text-align: center;
@@ -160,9 +159,22 @@ td { vertical-align: top; }
             cursor: pointer;
         }
 
+            #controls-input-run {
+                right: 16%;
+            }
+
+            #controls-input-stop {
+                right: 10%;
+            }
+
+            .disabled {
+                background-color: #dbdbdb;
+                cursor: auto;
+            }
+
         #controls-input-close {
             position: absolute;
-            background-color: #999;
+            background-color: #777;
             color: white;
             height: 21px;
             width: 26px;

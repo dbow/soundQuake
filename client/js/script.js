@@ -130,14 +130,23 @@ var DATA = {};
         var mapBounds = DATA.source.getBounds(),
             xAxis,
             yAxis,
-            rate = 10000, // default
-            increment = 'years', // default
+            rate = 5,
+            increment = 'years', // per second
             msPer = {
               'days': 1000 * 60 * 60 * 24,
               'weeks': 1000 * 60 * 60 * 24 * 7,
               'months': 1000 * 60 * 60 * 24 * 30,
               'years': 1000 * 60 * 60 * 24 * 365
-            };
+            },
+            scheduledQuakes = [];
+
+            // TODO(dbow): Notes on calculating time offset... remove soon!
+            // 5 years (timeSpan) per second (realTime)
+            // 5 msPer['years'] (timeSpan) per second (realTime)
+            // 5 msPer['years'] (timeSpan) per 1000 ms (realTime)
+            // 1000 ms (realTime) per 5 msPer['years'] (timeSpan)
+            // 1000 / 5 msPer['years'] (realTime) per 1 ms (timeSpan)
+            // rate: x ms (realTime) per 1 ms (timeSpan)
 
         return {
 
@@ -153,6 +162,12 @@ var DATA = {};
                 }
             },
 
+            getScheduledQuakes: function () {
+
+              return scheduledQuakes;
+
+            },
+
             play: function (dataArray) {
 
                 var subSet = dataArray || DATA.source.getRows(),
@@ -161,15 +176,16 @@ var DATA = {};
                     setObj,
                     setObjCoords,
                     timeBegin = subSet[0]['datetime'],
-                    timeAxis = subSet[setLen - 1]['datetime'] - timeBegin,
-                    numIncrement = timeAxis / msPer[increment],
+                    timeSpan = subSet[setLen - 1]['datetime'] - timeBegin,
+                    currRate = 1000 / (rate * msPer[increment]),
+                    realTimeSpan = timeSpan * currRate,
                     offSet,
                     objMag;
 
                 for (i = 0; i < setLen; i++) {
                     setObj = subSet[i];
                     setObjCoords = DATA.visualize.convertToXY(setObj.Latitude, setObj.Longitude);
-                    offSet = parseInt(((setObj['datetime'] - timeBegin) / timeAxis) * (rate * numIncrement), 10);
+                    offSet = parseInt(((setObj['datetime'] - timeBegin) / timeSpan) * (realTimeSpan), 10);
                     objMag = setObj['Magnitude'] / 10;
                     DATA.visualize.createPlay(objMag, setObjCoords.x, setObjCoords.y, offSet);
                 }
@@ -177,9 +193,9 @@ var DATA = {};
             },
 
             createPlay: function (mag, x, y, time) {
-                setTimeout(function () {
+                scheduledQuakes.push(setTimeout(function () {
                         Visual.addQuake(mag, x, y);
-                }, time);
+                }, time));
             },
 
             convertToXY: function (lat, long) {
@@ -207,6 +223,7 @@ var DATA = {};
             init: function () {
 
                 DATA.visualize.setupXY();
+                UI.enableRun();
                 //DATA.visualize.play();
 
             }
@@ -225,10 +242,28 @@ var UI = (function () {
 
   var me = {};
 
+  me.enableRun = function () {
+
+    $('#controls-input-run').removeClass('disabled');
+
+  };
+
+  me.enableStop = function () {
+
+    $('#controls-input-run').addClass('disabled');
+    $('#controls-input-stop').removeClass('disabled');
+
+  };
+
+  me.disableStop = function () {
+
+    $('#controls-input-run').removeClass('disabled');
+    $('#controls-input-stop').addClass('disabled');
+
+  };
+
   me.init = function () {
 
-    
-    
     $('#controls-input-interval').slider({
       range: true,
       min: 0,
@@ -240,7 +275,7 @@ var UI = (function () {
       }
     });
 
-    $(document).on('click', '#controls-input-run', function () {
+    $(document).on('click', '#controls-input-run:not(".disabled")', function () {
 
       var rate = $('#controls-rate').val(),
           incr = $('#controls-increment').val(),
@@ -261,11 +296,27 @@ var UI = (function () {
       }
 
       if (!error) {
-        console.log(intRate * 100000, incr);
-        DATA.visualize.setRate(intRate * 100000);
+        Visual.start();
+        DATA.visualize.setRate(intRate);
         DATA.visualize.setIncrement(incr);
         DATA.visualize.play();
+        UI.enableStop();
       }
+
+    });
+
+    $(document).on('click', '#controls-input-stop:not(".disabled")', function () {
+
+      var scheduledQuakes = DATA.visualize.getScheduledQuakes(),
+          arrayLen = scheduledQuakes.length,
+          i;
+
+      for (i = 0; i < arrayLen; i++) {
+        clearInterval(scheduledQuakes[i]);
+      }
+
+      Visual.stop();
+      UI.disableStop();
 
     });
     
@@ -274,6 +325,7 @@ var UI = (function () {
       $('#controls').removeClass('inactive');
       $('#controls-select').hide();
       $('#controls-input').show();
+
     });
 
     $(document).on('click', '#controls-input-close', function () {
