@@ -3,6 +3,8 @@ var Visual = (function () {
   
       WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight,
+      HALF_WIDTH = WIDTH / 2,
+      HALF_HEIGHT = HEIGHT / 2,
       PLANE_WIDTH = 30,
       PLANE_HEIGHT = 30,
       
@@ -15,7 +17,8 @@ var Visual = (function () {
       _renderer,
       _camera,
       
-      _tick = 0;
+      _tick = 0,
+      _mouseX = 0, _mouseY = 0;
       
   // create the cube's material
   var cubeMaterial1 =
@@ -121,6 +124,11 @@ cube.geometry.dynamic = true;
     quake.mag -= 0.010;
     quake.radius += 0.25;
   }
+  
+  function _mousemove(event) {
+		_mouseX = event.clientX - HALF_WIDTH;
+		_mouseY = event.clientY - HALF_HEIGHT;
+	}
 
   me.getBounds = function () {
       return {
@@ -139,6 +147,8 @@ cube.geometry.dynamic = true;
     // get the DOM element to attach to
     // - assume we've got jQuery to hand
     var $container = $('#visual');
+    
+    $container.on('mousemove', _mousemove);
     
     // create a WebGL renderer, camera
     // and a scene
@@ -167,7 +177,7 @@ _camera.position.z = 300;
     _camera.position.y = 600;
     _camera.position.x = 0;
     
-    _camera.rotation.x = -1.5;
+    _camera.rotation.x = -Math.PI / 2;
     
     // start the renderer
     _renderer.setSize(WIDTH, HEIGHT);
@@ -312,6 +322,24 @@ _camera.position.z = 300;
   };
   
   me.render = function () {
+    //linear
+    //_camera.position.y -= (_mouseY) * .01;
+    //_camera.position.x -= (_mouseX) * .01;
+    
+    
+    _camera.position.y = 600 * Math.cos(_mouseY * 0.008);
+    _camera.position.z = 600 * Math.sin(_mouseY * 0.008);
+    _camera.rotation.x = _mouseY * (Math.PI / HALF_HEIGHT) - Math.PI / 2;
+    
+    _camera.position.x = 600 * Math.sin(_mouseX * 0.01);
+    _camera.rotation.y = _mouseX * Math.PI / HALF_WIDTH;
+
+    //_camera.position.y += 600 * Math.cos(_mouseY * 0.008 - (_camera.position.y / 600));
+    //_camera.position.z += Math.sin(_mouseY * 0.008);
+    //_camera.rotation.x = _mouseY * (Math.PI / HALF_HEIGHT) - Math.PI / 2;
+
+    //mycamera = _camera;
+    //_camera.lookAt(_scene.position);
     _renderer.render(_scene, _camera);
   };
   
