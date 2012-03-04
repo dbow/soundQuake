@@ -78,8 +78,48 @@ td { vertical-align: top; }
   background: #000;
 }
 
+#controls {
+    position: absolute;
+    height: 70px;
+    width: auto;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    border-radius: 0px;
+    background-color: #FFF;
+    font-family: arial, sans-serif;
+    color: #777;
+    cursor: auto;
+}
 
+#controls.inactive {
+    width: 250px;
+    bottom: 30px;
+    left: 30px;
+    border-radius: 14px;
+    cursor: pointer;
+}
 
+    #controls-select {
+        font-size: 40px;
+        margin-top: 9px;
+        text-align: center;
+    }
+
+    #controls-close {
+        position: absolute;
+        display: none;
+        background-color: #777;
+        color: white;
+        height: 26px;
+        width: 70px;
+        right: 10px;
+        bottom: 30px;
+        border-radius: 8px;
+        text-align: center;
+        padding-top: 4px;
+        cursor: pointer;
+    }
 
 
 
