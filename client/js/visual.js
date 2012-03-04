@@ -29,6 +29,7 @@ cube.geometry.dynamic = true;
     
     cube.position.y = CUBE_HEIGHT * scale / 2 + CUBE_HEIGHT / 2;
     cube.scale.y = scale + 1;
+    //cube.translateY(CUBE_HEIGHT * scale / 2 + CUBE_HEIGHT / 2);
   }
   
   function _addMag(x, y, quake) {
@@ -41,6 +42,7 @@ cube.geometry.dynamic = true;
         if (cube.mag < 1) {
           magDiff = 1 - cube.mag;
           cube.mag += quake.mag * magDiff;
+          //cube.material.color.setRGB(255,255,255);
         }
         quake.cells[x + ' ' + y] = 1;
       }
@@ -152,21 +154,42 @@ _camera.position.z = 300;
         width = 20,
         depth = 20,
         cube;
+        
+    // create the cube's material
+    var cubeMaterial1 =
+      new THREE.MeshPhongMaterial(
+        {
+          //color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
+          //color: 0xCC0000
+          //color: 247 | 164 << 8
+          color: 0x003AEC,
+        }),
+        cubeMaterial2 = new THREE.MeshPhongMaterial({
+          //color: 48 | 136 << 8 | 42 << 16
+          color: 0x001440
+        }),
+        cubeMaterial3 = new THREE.MeshPhongMaterial({
+          //color: 120 | 102 << 8 | 0 << 16
+          color: 0x000074
+        }),
+        func;
     
     // create the plane
     for (var i = 0; i < PLANE_WIDTH; i++) {
       _plane[i] = [];
       for (var j = 0; j < PLANE_HEIGHT; j++) {
       
-        pixel = pixels[j * PLANE_WIDTH + i];
-      
-        // create the cube's material
-        var cubeMaterial =
-          new THREE.MeshPhongMaterial(
-            {
-              color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
-              //color: 0xCC0000
-            });
+        pixel = pixels[j * (PLANE_WIDTH) + i];
+        
+        if (pixel[1] === 164) {
+          func = cubeMaterial1;
+        }
+        else if (pixel[1] === 136) {
+          func = cubeMaterial2;
+        }
+        else {
+          func = cubeMaterial3;
+        }
       
         // create a new mesh with cube geometry
         cube = new THREE.Mesh(
@@ -176,11 +199,12 @@ _camera.position.z = 300;
             height,
             depth),
         
-          cubeMaterial);
+          func);
           
         cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (CUBE_WIDTH);
         cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (CUBE_WIDTH);
         cube.position.y = CUBE_HEIGHT / 2;
+        //cube.translateY(CUBE_HEIGHT / 2);
         
         //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
           

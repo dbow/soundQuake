@@ -199,3 +199,41 @@ var DATA = {};
 
 })();
 
+
+/**
+ * UI module
+ */
+var UI = (function () {
+
+  var me = {};
+
+  me.init = function () {
+
+    $(document).on('click', '#controls.inactive', function () {
+
+      $('#controls').removeClass('inactive');
+      $('#controls-select').hide();
+      $('#controls-close').show();
+    });
+
+    $(document).on('click', '#controls-close', function () {
+
+      $('#controls').addClass('inactive');
+      $('#controls-select').show();
+      $('#controls-close').hide();
+
+    });
+
+  };
+
+  return me;
+
+})();
+
+$(function() {
+
+  UI.init();
+
+});
+
+
