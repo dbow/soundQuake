@@ -50,16 +50,19 @@ var Audio = (function () {
 		context = null,
 		bufferList = null,
 		bufferLoader = null,
-		sampleBuffer = null;
+		sampleBuffer = null,
+		panner = null;
 
 	function finishedLoading(list) {
 	  bufferList = list;
 	}
 
- 	me.playSample = function(ranNum) {
+ 	me.playSample = function(ranNum, x, y) {
 		var source = context.createBufferSource();
 		source.buffer = bufferList[ranNum];
-		source.connect(context.destination);
+		source.connect(panner);
+		panner.connect(context.destination);
+		panner.setPosition(x, y, 0);
 		source.noteOn(0);
 	}
 
@@ -89,6 +92,9 @@ var Audio = (function () {
 		catch(e) {
 			alert('Buffer Loader Error.');
 		}
+		
+		panner = context.createPanner();
+		
 	}
 	
 	return me;

@@ -285,8 +285,11 @@ _camera.position.z = 300;
       cells: {}
     });
 
-	var randomnumber=Math.floor(Math.random()*6)
-	Audio.playSample(randomnumber);
+	var posX = x / me.getBounds()[0]; 
+	var posY = y / me.getBounds()[1]; 
+	
+	var randomnumber=Math.floor(Math.random()*5)
+	Audio.playSample(randomnumber, posX, posY);
   };
   
   me.render = function () {
