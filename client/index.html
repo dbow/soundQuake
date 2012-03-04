@@ -11,6 +11,7 @@
 	<meta name="viewport" content="width=device-width">
 
 	<link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.18.custom.css">
 
 	<script src="js/libs/modernizr-2.5.3.min.js"></script>
 </head>
@@ -23,14 +24,39 @@
   <div id="visual"></div>
   <canvas id="image_loader"></canvas>
   <div id="controls" class="inactive">
-      <div id="controls-select">Select Inputs</div>
-      <div id="controls-close">Close</div>
+      <div id="controls-select">Customize</div>
+      <div id="controls-input">
+          <div class="controls-ui-group clearfix">
+              <div class="control-text">Choose time range</div>
+              <div id="controls-input-interval"></div>
+          </div>
+          <div class="controls-ui-group clearfix">
+              <div class="control-text">Choose speed</div>
+              <div id="controls-input-rate">
+                  <div class="controls-error" id="controls-error-val">Please provide a rate</div>
+                  <div class="controls-error" id="controls-error-num">Rate must be a number</div>
+                  <input id="controls-rate" type="text" />
+                  <select id="controls-increment">
+                      <option>days</option>
+                      <option>weeks</option>
+                      <option>months</option>
+                      <option selected="true">years</option>
+                  </select>
+                  per second
+              </div>
+          </div>
+          <div id="controls-input-run">RUN</div>
+          <div id="controls-input-close">X</div>
+      </div>
   </div>
 
 </div>
 <footer>
 </footer>
-<script src="js/libs/jquery-1.7.1.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script>window.jQuery.ui || document.write('<script src="js/libs/jquery-ui-1.8.18.custom.min.js"><\/script>')</script>
 
 <script src="js/libs/underscore-min.js"></script>
 <script src="js/libs/Three.js"></script>

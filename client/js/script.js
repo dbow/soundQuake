@@ -130,10 +130,28 @@ var DATA = {};
         var mapBounds = DATA.source.getBounds(),
             xAxis,
             yAxis,
-            msPerYearRate = 10000,
-            MS_PER_YEAR = 1000*60*60*24*365;
+            rate = 10000, // default
+            increment = 'years', // default
+            msPer = {
+              'days': 1000 * 60 * 60 * 24,
+              'weeks': 1000 * 60 * 60 * 24 * 7,
+              'months': 1000 * 60 * 60 * 24 * 30,
+              'years': 1000 * 60 * 60 * 24 * 365
+            };
 
         return {
+
+            setIncrement: function (newInc) {
+                if (msPer[newInc]) {
+                    increment = newInc;
+                }
+            },
+
+            setRate: function (newRate) {
+                if (newRate > 0) {
+                  rate = newRate;
+                }
+            },
 
             play: function (dataArray) {
 
@@ -144,14 +162,14 @@ var DATA = {};
                     setObjCoords,
                     timeBegin = subSet[0]['datetime'],
                     timeAxis = subSet[setLen - 1]['datetime'] - timeBegin,
-                    years = timeAxis / MS_PER_YEAR,
+                    numIncrement = timeAxis / msPer[increment],
                     offSet,
                     objMag;
 
                 for (i = 0; i < setLen; i++) {
                     setObj = subSet[i];
                     setObjCoords = DATA.visualize.convertToXY(setObj.Latitude, setObj.Longitude);
-                    offSet = parseInt(((setObj['datetime'] - timeBegin) / timeAxis) * (msPerYearRate * years), 10);
+                    offSet = parseInt(((setObj['datetime'] - timeBegin) / timeAxis) * (rate * numIncrement), 10);
                     objMag = setObj['Magnitude'] / 10;
                     DATA.visualize.createPlay(objMag, setObjCoords.x, setObjCoords.y, offSet);
                 }
@@ -189,7 +207,7 @@ var DATA = {};
             init: function () {
 
                 DATA.visualize.setupXY();
-                DATA.visualize.play();
+                //DATA.visualize.play();
 
             }
 
@@ -209,18 +227,60 @@ var UI = (function () {
 
   me.init = function () {
 
+    
+    
+    $('#controls-input-interval').slider({
+      range: true,
+      min: 0,
+      max: 500,
+      values: [ 75, 300 ],
+      slide: function( event, ui ) {
+        var timeInterval = ui.values;
+        // TODO(dbow): set interval.
+      }
+    });
+
+    $(document).on('click', '#controls-input-run', function () {
+
+      var rate = $('#controls-rate').val(),
+          incr = $('#controls-increment').val(),
+          intRate,
+          error = false;
+
+      $('.controls-error').hide();
+
+      if (rate) {
+        intRate = +rate;
+        if (!intRate) {
+          $('#controls-error-num').show();
+          error = true;
+        }
+      } else {
+        $('#controls-error-val').show();
+        error = true;
+      }
+
+      if (!error) {
+        console.log(intRate * 100000, incr);
+        DATA.visualize.setRate(intRate * 100000);
+        DATA.visualize.setIncrement(incr);
+        DATA.visualize.play();
+      }
+
+    });
+    
     $(document).on('click', '#controls.inactive', function () {
 
       $('#controls').removeClass('inactive');
       $('#controls-select').hide();
-      $('#controls-close').show();
+      $('#controls-input').show();
     });
 
-    $(document).on('click', '#controls-close', function () {
+    $(document).on('click', '#controls-input-close', function () {
 
       $('#controls').addClass('inactive');
       $('#controls-select').show();
-      $('#controls-close').hide();
+      $('#controls-input').hide();
 
     });
 

@@ -106,20 +106,72 @@ td { vertical-align: top; }
         text-align: center;
     }
 
-    #controls-close {
-        position: absolute;
+    #controls-input {
         display: none;
-        background-color: #777;
-        color: white;
-        height: 26px;
-        width: 70px;
-        right: 10px;
-        bottom: 30px;
-        border-radius: 8px;
-        text-align: center;
-        padding-top: 4px;
-        cursor: pointer;
     }
+
+        .controls-ui-group {
+            margin: 10px auto;
+            width: 55%;
+        }
+
+        .controls-ui-group div {
+            float: left;
+        }
+
+        .control-text {
+            width: 20%;
+            margin-right: 15%;
+        }
+
+        #controls-input-interval {
+            width: 60%;
+            height: 12px;
+            margin-top: 3px;
+        }
+
+        .controls-error {
+            height: 30px;
+            width: 110px;
+            color: #FF5C4B;
+            font-size: 10px;
+            text-align: center;
+            display: none;
+            position: absolute;
+            left: 33%;
+            margin-top: 5px;
+        }
+
+        #controls-input-rate {
+
+        }
+
+        #controls-input-run {
+            position: absolute;
+            background-color: #777;
+            color: white;
+            height: 26px;
+            width: 70px;
+            right: 16%;
+            bottom: 22px;
+            border-radius: 8px;
+            text-align: center;
+            padding-top: 4px;
+            cursor: pointer;
+        }
+
+        #controls-input-close {
+            position: absolute;
+            background-color: #999;
+            color: white;
+            height: 21px;
+            width: 26px;
+            right: 5px;
+            top: 5px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
 
 
 
