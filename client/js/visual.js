@@ -3,8 +3,8 @@ var Visual = (function () {
   
       WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight,
-      PLANE_WIDTH = 40,
-      PLANE_HEIGHT = 40,
+      PLANE_WIDTH = 30,
+      PLANE_HEIGHT = 30,
       
       CUBE_HEIGHT = 50,
       CUBE_WIDTH = 20,
@@ -16,6 +16,27 @@ var Visual = (function () {
       _camera,
       
       _tick = 0;
+      
+  // create the cube's material
+  var cubeMaterial1 =
+    new THREE.MeshPhongMaterial(
+      {
+        //color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
+        //color: 0xCC0000
+        //color: 247 | 164 << 8
+        color: 0x003AEC,
+      }),
+      cubeMaterial2 = new THREE.MeshPhongMaterial({
+        //color: 48 | 136 << 8 | 42 << 16
+        color: 0x001440
+      }),
+      cubeMaterial3 = new THREE.MeshPhongMaterial({
+        //color: 120 | 102 << 8 | 0 << 16
+        color: 0x000074
+      }),
+      cubeMaterial4 = new THREE.MeshPhongMaterial({
+        color: 0xffffff
+      });
       
   function _setCubeHeight(cube, scale) {
     /*
@@ -32,17 +53,25 @@ cube.geometry.dynamic = true;
     //cube.translateY(CUBE_HEIGHT * scale / 2 + CUBE_HEIGHT / 2);
   }
   
-  function _addMag(x, y, quake) {
+  function _addMag(x, y, quake, epi) {
     x = Math.floor(x);
     y = Math.floor(y);
+    
     if (x >= 0 && x < PLANE_WIDTH && y >= 0 && y < PLANE_HEIGHT) {
       var cube = _plane[x][y],
           magDiff;
+          
+      if (epi) {
+        //cube.mesh.material.color.setRGB(255,255,255);
+        //console.log(cube);
+        cube.mesh.material = cubeMaterial4;
+        cube.epi = cube.time;
+      }
+          
       if (!quake.cells[x + ' ' + y]) {
         if (cube.mag < 1) {
           magDiff = 1 - cube.mag;
           cube.mag += quake.mag * magDiff;
-          //cube.material.color.setRGB(255,255,255);
         }
         quake.cells[x + ' ' + y] = 1;
       }
@@ -60,7 +89,7 @@ cube.geometry.dynamic = true;
         y0 = quake.y;
         
     if (quake.radius === 0) {
-      _addMag(x0, y0, quake);
+      _addMag(x0, y0, quake, true);
     }
     else {
       _addMag(x0, y0 + radius, quake);
@@ -153,33 +182,14 @@ _camera.position.z = 300;
     var height = 50,
         width = 20,
         depth = 20,
-        cube;
-        
-    // create the cube's material
-    var cubeMaterial1 =
-      new THREE.MeshPhongMaterial(
-        {
-          //color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
-          //color: 0xCC0000
-          //color: 247 | 164 << 8
-          color: 0x003AEC,
-        }),
-        cubeMaterial2 = new THREE.MeshPhongMaterial({
-          //color: 48 | 136 << 8 | 42 << 16
-          color: 0x001440
-        }),
-        cubeMaterial3 = new THREE.MeshPhongMaterial({
-          //color: 120 | 102 << 8 | 0 << 16
-          color: 0x000074
-        }),
-        func;
+        cube, func;
     
     // create the plane
     for (var i = 0; i < PLANE_WIDTH; i++) {
       _plane[i] = [];
       for (var j = 0; j < PLANE_HEIGHT; j++) {
       
-        pixel = pixels[j * (PLANE_WIDTH) + i];
+        pixel = pixels[j * (PLANE_WIDTH + 10) + i];
         
         if (pixel[1] === 164) {
           func = cubeMaterial1;
@@ -204,12 +214,13 @@ _camera.position.z = 300;
         cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (CUBE_WIDTH);
         cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (CUBE_WIDTH);
         cube.position.y = CUBE_HEIGHT / 2;
+        //cube.dynamic = true;
         //cube.translateY(CUBE_HEIGHT / 2);
         
         //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
           
         _scene.add(cube);
-        _plane[i][j] = {mag: 0, time: 0, mesh: cube, quakes: {}}
+        _plane[i][j] = {mag: 0, time: 0, mesh: cube, quakes: {}, oldMaterial: func}
       }
     }
       
@@ -260,12 +271,18 @@ _camera.position.z = 300;
       for (j = 0; j < PLANE_WIDTH; j++) {
         cube = _plane[i][j];
         _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
+        
         if (cube.mag > 0) {
-          cube.mag -= 0.001;
+          cube.mag -= 0.002;
           cube.time++;
         }
         else {
           cube.time = 0;
+        }
+        
+        if (cube.epi >= 0 && cube.time - cube.epi > 50) {
+          cube.mesh.material = cube.oldMaterial;
+          cube.epi = 0;
         }
       }
     }
