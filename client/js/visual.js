@@ -259,6 +259,8 @@ _camera.position.z = 300;
       y: y,
       cells: {}
     });
+
+	Audio.playSample();
   };
   
   me.render = function () {
