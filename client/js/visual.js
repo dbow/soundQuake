@@ -247,6 +247,7 @@ _camera.position.z = 300;
   };
   
   me.addQuake = function (mag, x, y) {
+    console.log('QUAKE!', mag, x, y);
     _quakes.push({
       mag: mag,
       radius: 0,
