@@ -285,7 +285,6 @@ var DATA = {};
                     setObj = subSet[i];
                     setObjCoords = DATA.visualize.convertToXY(setObj.Latitude, setObj.Longitude);
                     offSet = parseInt(((setObj['datetime'] - timeBegin) / timeSpan) * (realTimeSpan), 10);
-                    // TODO(dbow): Abstract magnitude.
                     objParam = (setObj[firstParam.name] - firstParam.lowest) / (firstParam.highest - firstParam.lowest);
                     DATA.visualize.createPlay(objParam, setObjCoords.x, setObjCoords.y, offSet);
                 }
@@ -411,7 +410,7 @@ var UI = (function () {
           i;
 
       for (i = 0; i < arrayLen; i++) {
-        clearInterval(scheduledQuakes[i]);
+        clearTimeout(scheduledQuakes[i]);
       }
 
       Visual.stop();
