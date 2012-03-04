@@ -13,7 +13,13 @@ var DATA = {};
             describeUrl = encodeURI('query?sql=DESCRIBE ' + FT_ID),
             selectUrl = 'query?sql=SELECT ',
             columns = [],
-            rows;
+            rows,
+            latLngBounds = {
+                TOP_LAT: 38.090668,
+                BOT_LAT: 37.342867,
+                LEFT_LONG: -122.921226,
+                RIGHT_LONG: -121.687317
+            };
 
         return {
 
@@ -23,6 +29,10 @@ var DATA = {};
 
             getRows: function () {
                 return rows;
+            },
+
+            getBounds: function () {
+                return latLngBounds;
             },
 
             retrieveColumns: function () {
@@ -108,6 +118,61 @@ var DATA = {};
     })();
 
     DATA.source.init();
+
+    DATA.visualize = (function () {
+
+        var sourceData = DATA.source.getRows(),
+            mapBounds = DATA.source.getBounds(),
+            xAxis,
+            yAxis;
+
+        return {
+
+            play: function (dataArray) {
+
+                var subset = dataArray || sourceData,
+                    setLen = subset.length,
+                    i;
+
+                for (i = 0; i < setLen; i++) {
+
+                }
+
+            },
+
+            convertToXY: function (lat, long) {
+
+                var planeBounds = Visual.getBounds(),
+                    yDist = mapBounds.TOP_LAT - lat,
+                    xDist = mapBounds.RIGHT_LONG - long,
+                    yConv = yDist / yAxis,
+                    xConv = xDist / xAxis;
+
+                return {
+                    x: xConv * planeBounds.x,
+                    y: yConv * planeBounds.y
+                };
+
+            },
+
+            setupXY: function () {
+
+                xAxis = mapBounds.RIGHT_LONG - mapBounds.LEFT_LONG;
+                yAxis = mapBounds.TOP_LAT - mapBounds.BOT_LAT;
+
+            },
+
+            init: function () {
+
+                DATA.visualize.setupXY();
+
+            }
+
+        };
+
+    })();
+
+    DATA.visualize.init();
 
 })();
 

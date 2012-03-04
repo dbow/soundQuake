@@ -88,6 +88,13 @@ cube.geometry.dynamic = true;
     quake.mag -= 0.010;
     quake.radius += 0.25;
   }
+
+  me.getBounds = function () {
+      return {
+          x: PLANE_WIDTH,
+          y: PLANE_HEIGHT
+      };
+  };
   
   me.init = function () {
     // set some camera attributes
@@ -192,10 +199,6 @@ _camera.position.z = 300;
     
     // add to the scene
     _scene.add(pointLight);
-    
-    //hardcode    
-    me.addQuake(1, 20, 0);
-    me.addQuake(1, 0, 20);
     
     me.play = true;
     me.tick();
