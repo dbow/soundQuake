@@ -190,8 +190,8 @@ _camera.position.z = 300;
     
     // set up cube size
     var height = 50,
-        width = 20,
-        depth = 20,
+        width = 19,
+        depth = 19,
         cube, func;
     
     // create the plane
