@@ -18,7 +18,9 @@ var Visual = (function () {
       _camera,
       
       _tick = 0,
-      _mouseX = 0, _mouseY = 0;
+      _mouseX = 0, _mouseY = 0,
+      
+      _cameraMove = true;
       
   // create the cube's material
   var cubeMaterial1 =
@@ -323,16 +325,19 @@ _camera.position.z = 300;
   
   me.render = function () {
     //linear
-    //_camera.position.y -= (_mouseY) * .01;
-    //_camera.position.x -= (_mouseX) * .01;
+    if (_cameraMove) {
+    /*
+      _camera.position.y -= (_mouseY) * .01;
+      _camera.position.x -= (_mouseX) * .01;
+*/
     
-    
-    _camera.position.y = 600 * Math.cos(_mouseY * 0.008);
-    _camera.position.z = 600 * Math.sin(_mouseY * 0.008);
-    _camera.rotation.x = _mouseY * (Math.PI / HALF_HEIGHT) - Math.PI / 2;
-    
-    _camera.position.x = 600 * Math.sin(_mouseX * 0.01);
-    _camera.rotation.y = _mouseX * Math.PI / HALF_WIDTH;
+      _camera.position.y = 600 * Math.cos(_mouseY * 0.004);
+      _camera.position.z = 600 * Math.sin(_mouseY * 0.004);
+      _camera.rotation.x = _mouseY * (Math.PI / HEIGHT) - Math.PI / 2;
+      
+      _camera.position.x = 600 * Math.sin(_mouseX * 0.003);
+      _camera.rotation.y = _mouseX * Math.PI / WIDTH / 2;
+    }
 
     //_camera.position.y += 600 * Math.cos(_mouseY * 0.008 - (_camera.position.y / 600));
     //_camera.position.z += Math.sin(_mouseY * 0.008);
@@ -345,6 +350,19 @@ _camera.position.z = 300;
   
   me.start = function () {
     if (me.play !== true) {
+      _quakes = [];
+      for (i = 0; i < PLANE_WIDTH; i++) {
+        for (j = 0; j < PLANE_WIDTH; j++) {
+          cube = _plane[i][j];
+          
+          _setCubeHeight(cube.mesh, 0);
+          cube.mag = 0
+          cube.time = 0;
+          cube.mesh.material = cube.oldMaterial;
+          cube.epi = 0;
+        }
+      }
+    
       me.play = true;
       me.tick();
     }
@@ -352,19 +370,13 @@ _camera.position.z = 300;
   
   me.stop = function () {
     me.play = false;
-    
-    _quakes = [];
-    for (i = 0; i < PLANE_WIDTH; i++) {
-      for (j = 0; j < PLANE_WIDTH; j++) {
-        cube = _plane[i][j];
-        
-        _setCubeHeight(cube.mesh, 0);
-        cube.mag = 0
-        cube.time = 0;
-        cube.mesh.material = cube.oldMaterial;
-        cube.epi = 0;
-      }
-    }
+  };
+  
+  me.startCameraMove = function () {
+    _cameraMove = true;
+  };
+  me.stopCameraMove = function () {
+    _cameraMove = false;
   };
 
   return me;

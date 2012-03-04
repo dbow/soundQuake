@@ -339,6 +339,7 @@ var UI = (function () {
       $('#controls').removeClass('inactive');
       $('#controls-select').hide();
       $('#controls-input').show();
+      Visual.stopCameraMove();
 
     });
 
@@ -347,7 +348,7 @@ var UI = (function () {
       $('#controls').addClass('inactive');
       $('#controls-select').show();
       $('#controls-input').hide();
-
+      Visual.startCameraMove();
     });
 
   };
