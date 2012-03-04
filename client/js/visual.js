@@ -3,8 +3,8 @@ var Visual = (function () {
   
       WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight,
-      PLANE_WIDTH = 20,
-      PLANE_HEIGHT = 20,
+      PLANE_WIDTH = 40,
+      PLANE_HEIGHT = 40,
       
       CUBE_HEIGHT = 50,
       CUBE_WIDTH = 20,
@@ -34,7 +34,7 @@ cube.geometry.dynamic = true;
   function _addMag(x, y, quake) {
     x = Math.floor(x);
     y = Math.floor(y);
-    if (x > 0 && x < PLANE_WIDTH && y > 0 && y < PLANE_HEIGHT) {
+    if (x >= 0 && x < PLANE_WIDTH && y >= 0 && y < PLANE_HEIGHT) {
       var cube = _plane[x][y];
       if (!quake.cells[x + ' ' + y]) {
         cube.mag += quake.mag;
@@ -85,8 +85,8 @@ cube.geometry.dynamic = true;
       _addMag(x0 - y, y0 - x, quake);
     }
     
-    quake.mag -= 0.015;
-    quake.radius += 0.5;
+    quake.mag -= 0.010;
+    quake.radius += 0.25;
   }
   
   me.init = function () {
@@ -114,13 +114,20 @@ cube.geometry.dynamic = true;
     
     // the camera starts at 0,0,0
     // so pull it back
-    _camera.position.z = 300;
+    /*
+_camera.position.z = 300;
     _camera.position.y = 100;
     _camera.position.x = 300;
     
     _camera.rotation.x = -0.1;
     _camera.rotation.y = 0.8;
-    mycamera = _camera;
+*/
+    
+    _camera.position.z = 0;
+    _camera.position.y = 600;
+    _camera.position.x = 0;
+    
+    _camera.rotation.x = -1.5;
     
     // start the renderer
     _renderer.setSize(WIDTH, HEIGHT);
@@ -134,18 +141,21 @@ cube.geometry.dynamic = true;
         width = 20,
         depth = 20,
         cube;
-        
-    // create the cube's material
-    var cubeMaterial =
-      new THREE.MeshPhongMaterial(
-        {
-          color: 0xCC0000
-        });
     
     // create the plane
     for (var i = 0; i < PLANE_WIDTH; i++) {
       _plane[i] = [];
       for (var j = 0; j < PLANE_HEIGHT; j++) {
+      
+        pixel = pixels[j * PLANE_WIDTH + i];
+      
+        // create the cube's material
+        var cubeMaterial =
+          new THREE.MeshPhongMaterial(
+            {
+              color: pixel[2] | (pixel[1] << 8) | (pixel[0] << 16)
+              //color: 0xCC0000
+            });
       
         // create a new mesh with cube geometry
         cube = new THREE.Mesh(
@@ -157,8 +167,8 @@ cube.geometry.dynamic = true;
         
           cubeMaterial);
           
-        cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (width);
-        cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (depth);
+        cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (CUBE_WIDTH);
+        cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (CUBE_WIDTH);
         cube.position.y = CUBE_HEIGHT / 2;
         
         //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
@@ -201,7 +211,7 @@ cube.geometry.dynamic = true;
       requestAnimationFrame(me.tick);
     }
     
-    if (_tick % 10 === 0) {
+    if (_tick % 3 === 0) {
       for (var i = 0, l = _quakes.length; i < l; i++) {
         quake = _quakes[i];
         
