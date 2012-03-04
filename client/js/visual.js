@@ -35,9 +35,13 @@ cube.geometry.dynamic = true;
     x = Math.floor(x);
     y = Math.floor(y);
     if (x >= 0 && x < PLANE_WIDTH && y >= 0 && y < PLANE_HEIGHT) {
-      var cube = _plane[x][y];
+      var cube = _plane[x][y],
+          magDiff;
       if (!quake.cells[x + ' ' + y]) {
-        cube.mag += quake.mag;
+        if (cube.mag < 1) {
+          magDiff = 1 - cube.mag;
+          cube.mag += quake.mag * magDiff;
+        }
         quake.cells[x + ' ' + y] = 1;
       }
     }
@@ -118,7 +122,7 @@ cube.geometry.dynamic = true;
         FAR);
     
     _scene = new THREE.Scene();
-    
+
     // the camera starts at 0,0,0
     // so pull it back
     /*
@@ -199,7 +203,7 @@ _camera.position.z = 300;
     
     // add to the scene
     _scene.add(pointLight);
-    
+
     me.play = true;
     me.tick();
   };
@@ -209,7 +213,7 @@ _camera.position.z = 300;
         quake,
         cube,
         i, j;
-  
+
     if (me.play) {
       requestAnimationFrame(me.tick);
     }
@@ -226,7 +230,7 @@ _camera.position.z = 300;
       }
       _quakes = quakes;
     }
-    
+
     for (i = 0; i < PLANE_WIDTH; i++) {
       for (j = 0; j < PLANE_WIDTH; j++) {
         cube = _plane[i][j];
@@ -240,7 +244,7 @@ _camera.position.z = 300;
         }
       }
     }
-    
+
     _tick++;
     
     me.render();
