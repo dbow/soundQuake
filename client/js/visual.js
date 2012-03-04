@@ -13,7 +13,9 @@ var Visual = (function () {
       _quakes = [],
       _scene,
       _renderer,
-      _camera;
+      _camera,
+      
+      _tick = 0;
       
   function _setCubeHeight(cube, scale) {
     /*
@@ -25,10 +27,67 @@ cube.geometry.dynamic = true;
     cube.geometry.vertices[5].y = 100 * scale;
 */
     
-    cube.position.y = CUBE_HEIGHT * scale / 2;
-    cube.scale.y = scale;
+    cube.position.y = CUBE_HEIGHT * scale / 2 + CUBE_HEIGHT / 2;
+    cube.scale.y = scale + 1;
   }
   
+  function _addMag(x, y, quake) {
+    x = Math.floor(x);
+    y = Math.floor(y);
+    if (x > 0 && x < PLANE_WIDTH && y > 0 && y < PLANE_HEIGHT) {
+      var cube = _plane[x][y];
+      if (!quake.cells[x + ' ' + y]) {
+        cube.mag += quake.mag;
+        quake.cells[x + ' ' + y] = 1;
+      }
+    }
+  }
+  
+  function _drawQuake(quake) {
+    var radius = quake.radius,
+        f = radius - 1,
+        ddF_x = 1,
+        ddF_y = -2 * radius,
+        x = 0,
+        y = radius,
+        x0 = quake.x,
+        y0 = quake.y;
+        
+    if (quake.radius === 0) {
+      _addMag(x0, y0, quake);
+    }
+    else {
+      _addMag(x0, y0 + radius, quake);
+      _addMag(x0, y0 - radius, quake);
+      _addMag(x0 + radius, y0, quake);
+      _addMag(x0 - radius, y0, quake);
+    }
+    //_plane[x0 - radius][y0].mag += quake;
+    
+    while (x < y) {
+      if (f >= 0) {
+        y--;
+        ddF_y += 2;
+        f += ddF_y;
+      }
+      
+      x++;
+      ddF_x += 2;
+      f += ddF_x;
+      
+      _addMag(x0 + x, y0 + y, quake);
+      _addMag(x0 - x, y0 + y, quake);
+      _addMag(x0 + x, y0 - y, quake);
+      _addMag(x0 - x, y0 - y, quake);
+      _addMag(x0 + y, y0 + x, quake);
+      _addMag(x0 - y, y0 + x, quake);
+      _addMag(x0 + y, y0 - x, quake);
+      _addMag(x0 - y, y0 - x, quake);
+    }
+    
+    quake.mag -= 0.015;
+    quake.radius += 0.5;
+  }
   
   me.init = function () {
     // set some camera attributes
@@ -100,11 +159,12 @@ cube.geometry.dynamic = true;
           
         cube.position.x = (i - parseInt(PLANE_WIDTH / 2, 10)) * (width + 2);
         cube.position.z = (j - parseInt(PLANE_HEIGHT / 2, 10)) * (depth + 2);
+        cube.position.y = CUBE_HEIGHT / 2;
         
         //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
           
         _scene.add(cube);
-        _plane[i][j] = {magnitude: 1, mesh: cube}
+        _plane[i][j] = {mag: 0, time: 0, mesh: cube, quakes: {}}
       }
     }
       
@@ -129,29 +189,66 @@ cube.geometry.dynamic = true;
     _quakes.push({
       mag: 1,
       radius: 0,
-      posX: 10,
-      posY: 10
+      x: 0,
+      y: 20,
+      cells: {}
     });
     
+    _quakes.push({
+      mag: 1,
+      radius: 0,
+      x: 20,
+      y: 0,
+      cells: {}
+    });
+    
+    me.play = true;
     me.tick();
   };
   
   me.tick = function () {
-    var quakes;
+    var quakes = [],
+        quake,
+        cube,
+        i, j;
   
     if (me.play) {
       requestAnimationFrame(me.tick);
     }
     
-    for (var i = 0, l = _quakes.length; i < l; i++) {
-      quake = _quakes[i];
+    if (_tick % 10 === 0) {
+      for (var i = 0, l = _quakes.length; i < l; i++) {
+        quake = _quakes[i];
+        
+        if (quake.mag > 0 && quake.radius < PLANE_WIDTH) {
+          quakes.push(quake);
+        }
+        
+        _drawQuake(quake);
+      }
+      _quakes = quakes;
     }
+    
+    for (i = 0; i < PLANE_WIDTH; i++) {
+      for (j = 0; j < PLANE_WIDTH; j++) {
+        cube = _plane[i][j];
+        _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
+        if (cube.mag > 0) {
+          cube.mag -= 0.001;
+          cube.time++;
+        }
+        else {
+          cube.time = 0;
+        }
+      }
+    }
+    
+    _tick++;
     
     me.render();
   };
   
   me.render = function () {
-    // draw!
     _renderer.render(_scene, _camera);
   };
 
