@@ -230,6 +230,7 @@ _camera.position.z = 300;
 
     me.play = true;
     me.tick();
+
   };
   
   me.tick = function () {
@@ -284,7 +285,8 @@ _camera.position.z = 300;
       cells: {}
     });
 
-	Audio.playSample();
+	var randomnumber=Math.floor(Math.random()*6)
+	Audio.playSample(randomnumber);
   };
   
   me.render = function () {

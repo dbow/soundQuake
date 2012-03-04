@@ -1,93 +1,97 @@
-var BufferLoader = (function () {
+function BufferLoader(context, urlList, callback) {
+  this.context = context;
+  this.urlList = urlList;
+  this.onload = callback;
+  this.bufferList = new Array();
+  this.loadCount = 0;
+}
 
-	function BufferLoader(context, urlList, callback) {
-	  this.context = context;
-	  this.urlList = urlList;
-	  this.onload = callback;
-	  this.bufferList = new Array();
-	  this.loadCount = 0;
-	}
+BufferLoader.prototype.loadBuffer = function(url, index) {
+  // Load buffer asynchronously
+  var request = new XMLHttpRequest();
+  request.open("GET", url, true);
+  request.responseType = "arraybuffer";
 
-	BufferLoader.prototype.loadBuffer = function(url, index) {
-	  // Load buffer asynchronously
-	  var request = new XMLHttpRequest();
-	  request.open("GET", url, true);
-	  request.responseType = "arraybuffer";
+  var loader = this;
 
-	  var loader = this;
+  request.onload = function() {
+    // Asynchronously decode the audio file data in request.response
+    loader.context.decodeAudioData(
+      request.response,
+      function(buffer) {
+        if (!buffer) {
+          alert('error decoding file data: ' + url);
+          return;
+        }
+        loader.bufferList[index] = buffer;
+        if (++loader.loadCount == loader.urlList.length)
+          loader.onload(loader.bufferList);
+      }
+    );
+  }
 
-	  request.onload = function() {
-	    // Asynchronously decode the audio file data in request.response
-	    loader.context.decodeAudioData(
-	      request.response,
-	      function(buffer) {
-	        if (!buffer) {
-	          alert('error decoding file data: ' + url);
-	          return;
-	        }
-	        loader.bufferList[index] = buffer;
-	        if (++loader.loadCount == loader.urlList.length)
-	          loader.onload(loader.bufferList);
-	      }
-	    );
-	  }
+  request.onerror = function() {
+    alert('BufferLoader: XHR error');
+  }
 
-	  request.onerror = function() {
-	    alert('BufferLoader: XHR error');
-	  }
+  request.send();
+}
 
-	  request.send();
-	}
+BufferLoader.prototype.load = function() {
+  for (var i = 0; i < this.urlList.length; ++i)
+  this.loadBuffer(this.urlList[i], i);
+}
+	
+/////////////////////////
 
-	BufferLoader.prototype.load = function() {
-	  for (var i = 0; i < this.urlList.length; ++i)
-	  this.loadBuffer(this.urlList[i], i);
-	}
-
-}());
-
-var Audio = (function () {
+var Audio = (function () {	
 	var me = {},
 	
 		context = null,
-		bufferList,
-		bufferLoader,
+		bufferList = null,
+		bufferLoader = null,
 		sampleBuffer = null;
 
-	function _finishedLoading(bufferList) {
-	  bufferList = bufferList;
+	function finishedLoading(list) {
+	  bufferList = list;
 	}
 
-	playSample() = function () {
-		var source - context.createBufferSource();
-		source.buffer = bufferList[0]
+ 	me.playSample = function(ranNum) {
+		var source = context.createBufferSource();
+		source.buffer = bufferList[ranNum];
 		source.connect(context.destination);
 		source.noteOn(0);
 	}
 
-	function init() {
-	  try {
-	    context = new webkitAudioContext();
-		bufferLoader = new BufferLoader(
-	    context,
-	    [
-	      '../samples/banjo_b1.wav',
-	      '../samples/banjo_d1.wav',
-	    //  '../server/samples/banjo_d2.wav',
-	    //  '../server/samples/banjo_g1.wav',
-	    //  '../server/samples/banjo_g2.wav',
-	    ],
-	    _finishedLoading
-	    );
+	me.init = function() {
+  		try {
+	    	context = new webkitAudioContext();
+	  	}
+	  	catch(e) {
+	    	alert('Web Audio API is not supported in this browser.');
+	  	}
+	
+		try {
+			bufferLoader = new BufferLoader(
+			    context,
+			    [
+			      '../samples/banjo_b1.wav',
+			      '../samples/banjo_d1.wav',
+			      '../samples/banjo_d2.wav',
+				  '../samples/banjo_g1.wav',
+				  '../samples/banjo_g2.wav',
+			    ],
+			    finishedLoading
+		    );
 
-	  	bufferLoader.load();
-
-	  }
-	  catch(e) {
-	    alert('Web Audio API is not supported in this browser.');
-	  }
+		  	bufferLoader.load();
+		}
+		catch(e) {
+			alert('Buffer Loader Error.');
+		}
 	}
-
+	
+	return me;
 }());
 
 Audio.init();
