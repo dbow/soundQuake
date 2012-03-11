@@ -80,7 +80,7 @@ td { vertical-align: top; }
 
 #controls {
     position: absolute;
-    height: 105px;
+    height: 75px;
     width: auto;
     left: 0px;
     bottom: 0px;
@@ -113,6 +113,14 @@ td { vertical-align: top; }
         height: 50px;
         left: 10px;
         bottom: 20px;
+    }
+
+    #controls-about {
+        bottom: 8px;
+        left: 1%;
+    }
+    #about-link {
+        text-decoration: none;
     }
 
     #controls-input {
