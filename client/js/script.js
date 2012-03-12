@@ -231,7 +231,10 @@ var DATA = {};
           'months': 1000 * 60 * 60 * 24 * 30,
           'years': 1000 * 60 * 60 * 24 * 365
         },
-        scheduledQuakes = [];
+        scheduledQuakes = [],
+        timelineIncrement,
+        TIMELINE_UPDATE = 250,
+        timelineIntervalId;
 
     return {
 
@@ -271,7 +274,11 @@ var DATA = {};
             newParamObj,
             firstParam,
             secondParam,
-            objParam;
+            objParam,
+            timelineMap = {},
+            objYear,
+            leftOffset,
+            rightOffset;
 
         // Retrieve numeric params of the dataset
         for (param in params) {
@@ -296,12 +303,56 @@ var DATA = {};
           offSet = parseInt(((setObj['datetime'] - timeBegin) / timeSpan) * (realTimeSpan), 10);
           objParam = (setObj[firstParam.name] - firstParam.lowest) / (firstParam.highest - firstParam.lowest);
           DATA.visualize.createPlay(objParam, setObjCoords.x, setObjCoords.y, offSet);
+
+          // Assemble timelineMap object with years as keys and number of events as values.
+          objYear = setObj['datetime'].getFullYear();
+          if (timelineMap[objYear]) {
+            timelineMap[objYear] += 1;
+          } else {
+            timelineMap[objYear] = 1;
+          }
         }
 
-        // Call play again after the last quake is scheduled this time.
+        // Create timeline
+        leftOffset = DATA.source.getEarliest().getMonth() / 12;
+        rightOffset = DATA.source.getLatest().getMonth() / 12;
+        UI.setupTimeline(timelineMap, leftOffset, rightOffset);
+
+        // Calculate px increment that pointer should be moved every TIMELINE_UPDATE interval.
+        timelineIncrement = UI.getTimelineWidth() * (TIMELINE_UPDATE / realTimeSpan);
+
+        // Initiate pointer movement along timeline.
+        DATA.visualize.updateTimeline(UI.getPxWidthPerYear() * leftOffset);
+
+        // Call play again after the last quake is scheduled this time, with a 5 second delay.
         setTimeout(function () {
           DATA.visualize.play();
-        }, realTimeSpan + 1000);
+        }, realTimeSpan + 5000);
+
+      },
+
+      // Moves timeline-pointer along the timeline at a set interval based on data timespan.
+      updateTimeline: function (timerPosition) {
+
+        var thisIntervalId;
+
+        thisIntervalId = setInterval(function () {
+
+          var timelineWidth = UI.getTimelineWidth();
+
+          // If updateTimeline has been called again or end is reached, clear this interval.
+          if (timelineIntervalId !== thisIntervalId || timerPosition >= timelineWidth) {
+            clearInterval(thisIntervalId);
+          }
+
+          // Move pointer and increment timerPosition.
+          $('#timeline-pointer').css('left', timerPosition);
+          timerPosition += timelineIncrement;
+
+        }, TIMELINE_UPDATE);
+
+        // Sets timelineIntervalId to new ID when this method is called.
+        timelineIntervalId = thisIntervalId;
 
       },
 
@@ -357,7 +408,9 @@ var DATA = {};
  */
 var UI = (function () {
 
-  var me = {};
+  var me = {},
+      actualTimelineWidth,
+      pxWidthPerYear;
 
   me.enableRun = function () {
 
@@ -377,6 +430,86 @@ var UI = (function () {
     $('#controls-input-run').removeClass('disabled');
     $('#controls-input-stop').addClass('disabled');
 
+  };
+
+  me.getPxWidthPerYear = function () {
+
+    return pxWidthPerYear;
+
+  };
+
+  me.getTimelineWidth = function () {
+
+    return actualTimelineWidth;
+
+  };
+
+  me.setupTimeline = function (timelineObj, leftOffset, rightOffset) {
+
+    var sortedYears = _.sortBy(_.keys(timelineObj), function(num) { return parseInt(num, 10); }),
+        firstYear = parseInt(sortedYears[0], 10),
+        lastYear = parseInt(sortedYears.pop(), 10),
+        numYears = lastYear - firstYear + 1,
+        i,
+        numQuakes,
+        maxQuakes = 0,
+        quakeRatio,
+        yearHtml,
+        timelineHtml = '',
+        timelineWidth = $('#timeline-range').outerWidth(),
+        remainder = timelineWidth % numYears,
+        widthPerYear,
+        countHeight = parseInt($('#timeline-range').css('margin-top'), 10);
+
+    // Calculate how wide each year should be given the available space and number of years to represent.
+    pxWidthPerYear = Math.floor(timelineWidth / numYears);
+    widthPerYear = ((pxWidthPerYear / (pxWidthPerYear*numYears)) * 100) + '%';
+
+    // Add the pointer.
+    $('#timeline-range').html('<div id="timeline-pointer"></div>');
+    $('#timeline-pointer').css('left', leftOffset);  // Start pointer in a relative position to the first data point.
+
+    // Create timeline-range-date divs for each year in the dataset.
+    for (i = firstYear; i <= lastYear; i++) {
+      numQuakes = timelineObj[i];
+      yearHtml = '<div class="timeline-range-date" id="' + numQuakes + 'numQuakes">' + i +
+                 '<div class="timeline-range-data-bar"></div></div>';
+      timelineHtml += yearHtml;
+      if (numQuakes > maxQuakes) {
+        maxQuakes = numQuakes;
+      }
+    }
+
+    // Add timeline-range-date divs to timeline-range.
+    $('#timeline-range').append(timelineHtml);
+
+    // Adjust dimensions of each timeline-range-date to be the calculated width.
+    $('.timeline-range-date').css('width', widthPerYear);
+
+    // Set height of timeline-range-data-bar to relative height based on # of data points that year.
+    quakeRatio = countHeight / maxQuakes;
+    $('.timeline-range-date').each(function () {
+      var quakeNum = parseInt(this.id, 10),
+          relRatio = quakeNum * quakeRatio;
+      $(this).find('.timeline-range-data-bar').css('height', relRatio);
+    });
+
+    // Set actualTimelineWidth to the effective width of the timeline div given the dataset/offsets, etc.
+    actualTimelineWidth = timelineWidth - remainder - leftOffset - rightOffset;
+
+  };
+
+  me.toggleTimeline = function () {
+
+    var timeline = $('#timeline'),
+        reveal = false;
+    if (timeline.hasClass('hidden')) {
+      timeline.removeClass('hidden');
+      reveal = true;
+    } else {
+      timeline.addClass('hidden');
+    }
+    return reveal;
   };
 
   me.init = function () {
@@ -451,7 +584,7 @@ var UI = (function () {
     */
     
     $(document).on('keydown', function (e) {
-      console.log('key', e.which);
+      //console.log('key', e.which);
       //no stopping the sim
       /*
 if (e.which === 32) {
@@ -469,6 +602,11 @@ if (e.which === 32) {
       else if (e.which === 90) {
         if (Visual.toggleCameraZoom()) {
           me.showHudMessage('Zoom');
+        }
+      }
+      if (e.which === 84) {
+        if (UI.toggleTimeline()) {
+          me.showHudMessage('Timeline');
         }
       }
     });
