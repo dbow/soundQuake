@@ -427,13 +427,21 @@ var UI = (function () {
     }
 
     $(document).on('keydown', function (e) {
+      console.log('key', e.which);
       if (e.which === 32) {
         e.preventDefault();
         e.stopPropagation();
         _stop();
       }
       else if (e.which === 67) {
-        Visual.toggleCameraMove();
+        if (Visual.toggleCameraMove()) {
+          me.showHudMessage('Move');
+        }
+      }
+      else if (e.which === 90) {
+        if (Visual.toggleCameraZoom()) {
+          me.showHudMessage('Zoom');
+        }
       }
     });
 
@@ -461,6 +469,18 @@ var UI = (function () {
     });
     */
 
+  };
+
+  var _hudTimeout = 0;
+  me.showHudMessage = function (message) {
+    if (_hudTimeout) {
+      clearTimeout(_hudTimeout);
+    }
+    
+    $('#hud').text(message).show();
+    _hudTimeout = setTimeout(function () {
+      $('#hud').fadeOut();
+    }, 2000);
   };
 
   return me;

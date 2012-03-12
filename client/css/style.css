@@ -202,6 +202,14 @@ td { vertical-align: top; }
             cursor: pointer;
         }
 
+#hud {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 40px;
+  font-weight: 100;
+  color: #fff;
+}
 
 
 

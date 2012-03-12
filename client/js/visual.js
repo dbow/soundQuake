@@ -13,14 +13,18 @@ var Visual = (function () {
   
       _plane = [],
       _quakes = [],
+      _group,
       _scene,
       _renderer,
       _camera,
       
       _tick = 0,
       _mouseX = 0, _mouseY = 0,
+      _cameraX = 0, _cameraY = 0,
+      _cameraDistance = HEIGHT,
       
       _cameraMove = false,
+      _cameraZoom = false,
       _running = false,
       
       _colorSchemes = [
@@ -140,6 +144,16 @@ cube.geometry.dynamic = true;
 		_mouseX = event.clientX - HALF_WIDTH;
 		_mouseY = event.clientY - HALF_HEIGHT;
 	}
+	
+	function _setCamera() {
+    _camera.position.z = _cameraDistance * Math.sin(_cameraY * 0.004);
+    _camera.rotation.x = _cameraY * (Math.PI / HEIGHT) - Math.PI / 2;
+    
+    _camera.position.y = _cameraDistance * Math.cos(_cameraY * 0.004);
+    
+    _camera.position.x = _cameraDistance * Math.sin(_cameraX * 0.003);
+    _camera.rotation.y = _cameraX * Math.PI / WIDTH / 2;
+	}
 
   me.getBounds = function () {
       return {
@@ -180,6 +194,7 @@ cube.geometry.dynamic = true;
         FAR);
     
     _scene = new THREE.Scene();
+    _group = new THREE.Object3D();
 
     // the camera starts at 0,0,0
     // so pull it back
@@ -193,7 +208,7 @@ _camera.position.z = 300;
 */
     
     _camera.position.z = 0;
-    _camera.position.y = 600;
+    _camera.position.y = HEIGHT;
     _camera.position.x = 0;
     
     _camera.rotation.x = -Math.PI / 2;
@@ -245,13 +260,14 @@ _camera.position.z = 300;
         //cube.translateY(CUBE_HEIGHT / 2);
         
         //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
-          
-        _scene.add(cube);
+        
+        _group.add(cube);
         _plane[i][j] = {mag: 0, time: 0, mesh: cube, quakes: {}, oldMaterial: func}
       }
     }
-      
+    
     mycube = cube;
+    mygroup = _group;
     
     // add the cube to the scene
     
@@ -264,7 +280,9 @@ _camera.position.z = 300;
     pointLight.position.z = 130;
     
     // add to the scene
-    _scene.add(pointLight);
+    _group.add(pointLight);
+    
+    _scene.add(_group);
 
     me.start();
     me.tick();
@@ -345,17 +363,18 @@ _camera.position.z = 300;
   me.render = function () {
     //linear
     if (_cameraMove) {
-    /*
-      _camera.position.y -= (_mouseY) * .01;
-      _camera.position.x -= (_mouseX) * .01;
+      /*
+_cameraX = _mouseX;
+      _cameraY = _mouseY;
+      _setCamera();
 */
-    
-      _camera.position.y = 600 * Math.cos(_mouseY * 0.004);
-      _camera.position.z = 600 * Math.sin(_mouseY * 0.004);
-      _camera.rotation.x = _mouseY * (Math.PI / HEIGHT) - Math.PI / 2;
       
-      _camera.position.x = 600 * Math.sin(_mouseX * 0.003);
-      _camera.rotation.y = _mouseX * Math.PI / WIDTH / 2;
+      _group.rotation.x = Math.PI * (_mouseY / HEIGHT);
+      _group.rotation.z = Math.PI * (_mouseX / WIDTH);
+    }
+    else if (_cameraZoom) {
+      _cameraDistance = (_mouseY + HALF_HEIGHT) * 2;
+      _setCamera();
     }
 
     //_camera.position.y += 600 * Math.cos(_mouseY * 0.008 - (_camera.position.y / 600));
@@ -396,7 +415,8 @@ _camera.position.z = 300;
   };
   
   me.toggleCameraMove = function () {
-    _cameraMove = !_cameraMove;
+    _cameraZoom = false;
+    return _cameraMove = !_cameraMove;
   };
   
   me.startCameraMove = function () {
@@ -404,6 +424,11 @@ _camera.position.z = 300;
   };
   me.stopCameraMove = function () {
     _cameraMove = false;
+  };
+  
+  me.toggleCameraZoom = function () {
+    _cameraMove = false;
+    return _cameraZoom = !_cameraZoom;
   };
 
   return me;
