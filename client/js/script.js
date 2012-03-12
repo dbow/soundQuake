@@ -426,25 +426,6 @@ var UI = (function () {
       UI.disableStop();
     }
 
-    $(document).on('keydown', function (e) {
-      console.log('key', e.which);
-      if (e.which === 32) {
-        e.preventDefault();
-        e.stopPropagation();
-        _stop();
-      }
-      else if (e.which === 67) {
-        if (Visual.toggleCameraMove()) {
-          me.showHudMessage('Move');
-        }
-      }
-      else if (e.which === 90) {
-        if (Visual.toggleCameraZoom()) {
-          me.showHudMessage('Zoom');
-        }
-      }
-    });
-
     $(document).on('click', '#controls-input-stop:not(".disabled")', _stop);
 
     $(document).on('click', '#controls.inactive', function () {
@@ -468,6 +449,29 @@ var UI = (function () {
       Visual.selectColorScheme($(this).val());
     });
     */
+    
+    $(document).on('keydown', function (e) {
+      console.log('key', e.which);
+      //no stopping the sim
+      /*
+if (e.which === 32) {
+        e.preventDefault();
+        e.stopPropagation();
+        _stop();
+      }
+*/
+      
+      if (e.which === 67) {
+        if (Visual.toggleCameraMove()) {
+          me.showHudMessage('Move');
+        }
+      }
+      else if (e.which === 90) {
+        if (Visual.toggleCameraZoom()) {
+          me.showHudMessage('Zoom');
+        }
+      }
+    });
 
   };
 
@@ -492,7 +496,7 @@ $(function() {
   DATA.source.init('1jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY'); // default data set (bay area quakes from 1973+)
 
   // TODO (dbow): Removing UI interaction for installation.
-  // UI.init();
+  UI.init();
 
 });
 
