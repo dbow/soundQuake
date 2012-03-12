@@ -1,0 +1,27 @@
+soundquake
+
+[soundquake.d-bow.com]
+
+a webGL audio/visual piece created at ArtHackWeekendSF to represent data sets
+in both a literal and abstract way.  the current data set is bay area earthquakes
+since 1973.  the piece cycles through the data, representing each earthquake as a
+geolocated elevation on the map that spreads outward. it also uses the web audio api
+to play a banjo note based on the magnitude of the quake. the end result is a
+meditative experience, abstracted from the source data set.
+
+Currently being adapted for installation at the creator's project in SF:
+http://thecreatorsproject.com/events/the-creators-project-san-francisco-2012
+
+Other info:
+http://www.thecreatorsproject.com/arthackweekendsf
+http://www.gaffta.org/2012/03/04/soundquake/
+
+required installation:
+
+nodejs --- https://github.com/joyent/node/wiki/Installation
+ ( npm --- http://npmjs.org/ )
+expressjs --- http://expressjs.com/guide.html
+
+to run:
+cd server/
+node app.js // Express server listening on port 3000 in development mode
