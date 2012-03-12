@@ -376,6 +376,8 @@ var UI = (function () {
 
   me.init = function () {
 
+    // TODO (dbow): Removing the ability to control playback for the installation.
+    /*
     $(document).on('click', '#controls-input-run:not(".disabled")', function () {
 
       var rate = $('#controls-rate').val(),
@@ -452,6 +454,7 @@ var UI = (function () {
     $('#controls-select-colors').on('change', function () {
       Visual.selectColorScheme($(this).val());
     });
+    */
 
   };
 
@@ -462,7 +465,9 @@ var UI = (function () {
 $(function() {
 
   DATA.source.init('1jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY'); // default data set (bay area quakes from 1973+)
-  UI.init();
+
+  // TODO (dbow): Removing UI interaction for installation.
+  // UI.init();
 
 });
 
