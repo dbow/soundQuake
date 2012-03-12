@@ -224,7 +224,7 @@ var DATA = {};
         xAxis,
         yAxis,
         rate = 5,
-        increment = 'years', // per second
+        increment = 'weeks', // per second
         msPer = {
           'days': 1000 * 60 * 60 * 24,
           'weeks': 1000 * 60 * 60 * 24 * 7,
@@ -298,6 +298,11 @@ var DATA = {};
           DATA.visualize.createPlay(objParam, setObjCoords.x, setObjCoords.y, offSet);
         }
 
+        // Call play again after the last quake is scheduled this time.
+        setTimeout(function () {
+          DATA.visualize.play();
+        }, realTimeSpan + 1000);
+
       },
 
       createPlay: function (param, x, y, time) {
@@ -334,8 +339,8 @@ var DATA = {};
       init: function () {
 
         DATA.visualize.setupXY();
-        UI.enableRun();
-        //DATA.visualize.play();
+        // UI.enableRun();
+        DATA.visualize.play();
 
       }
 
