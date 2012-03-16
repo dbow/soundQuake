@@ -51,29 +51,43 @@ var Audio = (function () {
 		bufferList = null,
 		bufferLoader = null,
 		sampleBuffer = null,
-		panner = null;
 		compressor = null;
+		reverb = null
 
 	function finishedLoading(list) {
 	  bufferList = list;
 	}
 
  	me.playSample = function(ranNum, x, y, mag) {
-		var gainNode = context.createGainNode();
+		//var gainNode = context.createGainNode();
+		
+		var dryGainNode = context.createGainNode();
+     	var wetGainNode = context.createGainNode();
+
 		var filter = context.createBiquadFilter();
 		var source = context.createBufferSource();
-
+		var panner = context.createPanner();
+		
+		var gain = ((mag * 0.2) < 0.98) ? (mag / 12) : 0.98;
+		
 		source.buffer = bufferList[ranNum];
 		
 		// Create the audio graph.
-		source.connect(gainNode);
-		gainNode.connect(filter);
-		filter.connect(panner);
+		source.connect(wetGainNode);
+		source.connect(dryGainNode);
 		
-		gainNode.gain.value = ((mag * 0.2) < 0.98) ? (mag / 12) : 0.98;
+		wetGainNode.connect(filter);
+		dryGainNode.connect(filter);
+		
+		filter.connect(panner);
+		panner.connect(compressor);
+
+		wetGainNode.gain.value = gain * 0.3;
+		dryGainNode.gain.value = gain * 0.7;
 		
 		filter.type = 0; // Low-pass filter. See BiquadFilterNode docs
 		filter.frequency.value = (mag * 1000) + 50;
+
 		panner.setPosition(x, y, 0);
 		
 		source.noteOn(0);
@@ -106,12 +120,13 @@ var Audio = (function () {
 			alert('Buffer Loader Error.');
 		}
 		
-		panner = context.createPanner();
+		//reverb = context.createConvolver();
+		//reverb.buffer = context.createBuffer(bufferList[5], false);
+
 		compressor = context.createDynamicsCompressor();
-		
-		panner.connect(compressor);
-		compressor.connect(context.destination);
-		
+
+		//reverb.connect(compressor);
+		compressor.connect(context.destination);	
 	}
 	
 	return me;
