@@ -52,6 +52,7 @@ var Audio = (function () {
 		bufferLoader = null,
 		sampleBuffer = null,
 		panner = null;
+		compressor = null;
 
 	function finishedLoading(list) {
 	  bufferList = list;
@@ -68,9 +69,8 @@ var Audio = (function () {
 		source.connect(gainNode);
 		gainNode.connect(filter);
 		filter.connect(panner);
-		panner.connect(context.destination);
 		
-		gainNode.gain.value = (mag / 12) + 0.2;
+		gainNode.gain.value = ((mag * 0.2) < 0.98) ? (mag / 12) : 0.98;
 		
 		filter.type = 0; // Low-pass filter. See BiquadFilterNode docs
 		filter.frequency.value = (mag * 1000) + 50;
@@ -107,6 +107,10 @@ var Audio = (function () {
 		}
 		
 		panner = context.createPanner();
+		compressor = context.createDynamicsCompressor();
+		
+		panner.connect(compressor);
+		compressor.connect(context.destination);
 		
 	}
 	
