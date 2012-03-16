@@ -58,6 +58,19 @@ var Audio = (function () {
 	  bufferList = list;
 	}
 
+	function setReverbImpulseResponse(url) {
+	    // Load impulse response asynchronously
+	    var request = new XMLHttpRequest();
+	    request.open("GET", url, true);
+	    request.responseType = "arraybuffer";
+
+	    request.onload = function() { 
+	        reverb.buffer = context.createBuffer(request.response, false);
+	    }
+
+	    request.send();
+	}
+	
  	me.playSample = function(ranNum, x, y, mag) {
 		//var gainNode = context.createGainNode();
 		
@@ -80,10 +93,10 @@ var Audio = (function () {
 		dryGainNode.connect(filter);
 		
 		filter.connect(panner);
-		panner.connect(compressor);
+		panner.connect(reverb);
 
-		wetGainNode.gain.value = gain * 0.3;
-		dryGainNode.gain.value = gain * 0.7;
+		wetGainNode.gain.value = gain * 0.2;
+		dryGainNode.gain.value = gain * 0.8;
 		
 		filter.type = 0; // Low-pass filter. See BiquadFilterNode docs
 		filter.frequency.value = (mag * 1000) + 50;
@@ -120,12 +133,12 @@ var Audio = (function () {
 			alert('Buffer Loader Error.');
 		}
 		
-		//reverb = context.createConvolver();
-		//reverb.buffer = context.createBuffer(bufferList[5], false);
-
+		reverb = context.createConvolver();
+		setReverbImpulseResponse('../samples/reverb.wav');
+     
 		compressor = context.createDynamicsCompressor();
 
-		//reverb.connect(compressor);
+		reverb.connect(compressor);
 		compressor.connect(context.destination);	
 	}
 	
