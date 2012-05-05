@@ -240,6 +240,19 @@ body {
         cursor: pointer;
     }
 
+    #timeline-explanation {
+        float: left;
+        position: relative;
+        left: 5%;
+        top: 15px;
+    }
+
+    #timeline-explanation div {
+        font-size: 10px;
+        color: #555;
+        text-align: right;
+    }
+
     #timeline-range {
         position: relative;
         width: 80%;
