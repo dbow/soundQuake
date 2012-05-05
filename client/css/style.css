@@ -74,6 +74,10 @@ td { vertical-align: top; }
    Author:
    ========================================================================== */
 
+body {
+  cursor: none;
+}
+
 #visual {
   background: #000;
 }

@@ -223,7 +223,7 @@ var DATA = {};
     var mapBounds = DATA.source.getBounds(),
         xAxis,
         yAxis,
-        rate = 5,
+        rate = 1,
         increment = 'weeks', // per second
         msPer = {
           'days': 1000 * 60 * 60 * 24,
@@ -326,8 +326,16 @@ var DATA = {};
 
         // Call play again after the last quake is scheduled this time, with a 5 second delay.
         setTimeout(function () {
+          var scheduledQuakes = DATA.visualize.getScheduledQuakes(),
+              arrayLen = scheduledQuakes.length,
+              i;
+          for (i = 0; i < arrayLen; i++) {
+            clearTimeout(scheduledQuakes[i]);
+          }
+          Visual.stop();
           DATA.visualize.play();
-        }, realTimeSpan + 5000);
+          Visual.start();
+        }, realTimeSpan + 15000);
 
       },
 
@@ -593,22 +601,48 @@ if (e.which === 32) {
         _stop();
       }
 */
+
+      // 35 = 'end' which can be mapped to trackball
+      if (e.which === 35) {
+        Visual.resetBoth();
+        e.preventDefault();
+        e.stopPropagation();
+        me.showHudMessage('Off');
+      }
       
-      if (e.which === 67) {
+      if (e.which === 67 || e.which === 33) {
         if (Visual.toggleCameraMove()) {
           me.showHudMessage('Move');
         }
       }
+      
+      
       else if (e.which === 90) {
         if (Visual.toggleCameraZoom()) {
           me.showHudMessage('Zoom');
         }
       }
-      if (e.which === 84) {
+      
+      // 36 = 'home' which can be mapped to trackball.
+      if (e.which === 84 || e.which === 36) {
         if (UI.toggleTimeline()) {
           me.showHudMessage('Timeline');
         }
+        e.preventDefault();
+        e.stopPropagation();
       }
+    });
+    
+    $(document).on('click', function (e) {
+            
+      if (e.button === 0) {
+        if (Visual.toggleCameraZoom()) {
+          me.showHudMessage('Zoom');
+        }
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      
     });
 
   };
@@ -635,6 +669,10 @@ $(function() {
 
   // TODO (dbow): Removing UI interaction for installation.
   UI.init();
+  
+  setTimeout(function () {
+    window.location = window.location;
+  }, 1000*60*60);
 
 });
 

@@ -413,6 +413,11 @@ _cameraX = _mouseX;
     _running = false;
   };
   
+  me.resetBoth = function () {
+    _cameraZoom = false;
+    _cameraMove = false;
+  };
+  
   me.toggleCameraMove = function () {
     _cameraZoom = false;
     return _cameraMove = !_cameraMove;
