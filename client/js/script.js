@@ -485,8 +485,9 @@ var UI = (function () {
         // Create timeline-range-date divs for each year in the dataset.
         for (i = firstYear; i <= lastYear; i++) {
             numQuakes = timelineObj[i];
-            yearHtml = '<div class="timeline-range-date" id="' + numQuakes + 'numQuakes">' + i +
-                '<div class="timeline-range-data-bar"></div></div>';
+            yearHtml = '<div class="timeline-range-date" id="' + numQuakes + '_' + i + '_timeline_year">' + i +
+                       '<div class="timeline-range-data-bar"></div>' +
+                       '<div class="timeline-hover hidden">' + numQuakes + ' earthquakes in ' + i + '</div></div>';
             timelineHtml += yearHtml;
             if (numQuakes > maxQuakes) {
                 maxQuakes = numQuakes;
@@ -509,6 +510,13 @@ var UI = (function () {
 
         // Set actualTimelineWidth to the effective width of the timeline div given the dataset/offsets, etc.
         actualTimelineWidth = timelineWidth - remainder - leftOffset - rightOffset;
+
+        // Set up hovers to show data.
+        $('.timeline-range-date').hover(function () {
+            $(this).find('.timeline-hover').removeClass('hidden');
+        }, function () {
+            $(this).find('.timeline-hover').addClass('hidden');
+        });
 
     };
 

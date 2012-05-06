@@ -322,6 +322,20 @@ body {
                 background-color: #999;
             }
 
+            .timeline-hover {
+                position: absolute;
+                bottom: 20px;
+                left: -40px;
+                background-color: white;
+                opacity: 0.9;
+                padding: 2px;
+                border-radius: 5px;
+                color: #333;
+                z-index: 5;
+                width: 100px;
+                text-align: center;
+            }
+
     #timeline-pointer {
         position: absolute;
         bottom: -7px;
