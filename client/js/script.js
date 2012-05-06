@@ -523,13 +523,16 @@ var UI = (function () {
     me.toggleTimeline = function () {
 
         var timeline = $('#timeline'),
+            about = $('#about-button'),
             reveal = false;
 
         if (timeline.hasClass('hidden')) {
             timeline.removeClass('hidden');
+            about.removeClass('hidden');
             reveal = true;
         } else {
             timeline.addClass('hidden');
+            about.addClass('hidden');
         }
 
         return reveal;
