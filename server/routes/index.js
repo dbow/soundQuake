@@ -1,9 +1,10 @@
-
-/*
- * GET home page.
+/**
+ * Index page request handler.
+ *
+ * Returns index.html file.
+ *
  */
-
-exports.index = function(req, res){
+exports.index = function(req, res) {
 
     var fs = require('fs'),
         data;
@@ -16,9 +17,17 @@ exports.index = function(req, res){
 
 };
 
+// Server caches results, keying on query value.
 var dataCache = {};
 
-exports.data = function(req, response){
+
+/**
+ * Data request handler.
+ *
+ * Server makes HTTP request to Google Fusion tables for data,
+ * acting as a proxy for client (to avoid cross-domain issues).
+ */
+exports.data = function(req, response) {
 
     var http = require('http'),
         query = encodeURI(req.param('query', '')),
@@ -29,9 +38,11 @@ exports.data = function(req, response){
         },
         responseData = '';
 
+    // If data is cached, return it.
     if (dataCache[query]) {
         response.send(dataCache[query]);
     } else {
+        // Else, make HTTP request to Fusion tables.
         http.get(options, function(res) {
             if (res.statusCode !== 1000) {
                 res.setEncoding('utf8');

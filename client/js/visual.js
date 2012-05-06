@@ -1,3 +1,7 @@
+/**
+ * Visual
+ * Module handling the 3d visual functionality for the application.
+ */
 var Visual = (function () {
 
     var me = {},
@@ -241,7 +245,9 @@ var Visual = (function () {
         var height = 50,
             width = 19,
             depth = 19,
-            cube, func;
+            cube,
+            func,
+            pixel;
 
         // create the plane
         for (var i = 0; i < PLANE_WIDTH; i++) {
@@ -281,13 +287,16 @@ var Visual = (function () {
                 //_setCubeHeight(cube, 1 - (i + j) / (PLANE_WIDTH + PLANE_HEIGHT));
 
                 _group.add(cube);
-                _plane[i][j] = {mag: 0, time: 0, mesh: cube, quakes: {}, oldMaterial: func}
+                _plane[i][j] = {
+                    mag: 0,
+                    time: 0,
+                    mesh: cube,
+                    quakes: {},
+                    oldMaterial: func
+                };
 
             }
         }
-
-        mycube = cube;
-        mygroup = _group;
 
         // add the cube to the scene
 
@@ -315,6 +324,7 @@ var Visual = (function () {
             quake,
             cube,
             i,
+            l,
             j;
 
         if (true || _running) {
@@ -324,7 +334,7 @@ var Visual = (function () {
         if (_running) {
             if (_tick % 3 === 0) {
 
-                for (var i = 0, l = _quakes.length; i < l; i++) {
+                for (i = 0, l = _quakes.length; i < l; i++) {
 
                     quake = _quakes[i];
 
@@ -420,6 +430,10 @@ var Visual = (function () {
 
     me.start = function () {
 
+        var cube,
+            i,
+            j;
+
         if (_running !== true) {
 
             _quakes = [];
@@ -471,6 +485,7 @@ var Visual = (function () {
     };
 
     return me;
+
 }());
 
 Visual.init();
