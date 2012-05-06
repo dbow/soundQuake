@@ -19,9 +19,30 @@
 <header>
 
 </header>
+<div id="about-dialog" style="display: none;"><strong>soundQuake</strong> is an interactive visual and acoustic representation of Bay Area earthquake data from 1973 - present day. Every time an earthquake occurs in a given time range, a 3D rectangle will rise from the mapped epicenter and produce the sound of a banjo chord. The magnitude of the earthquake will impact the volume of the banjo sound, as well as the height of the rectangular protrusion. Multiple earthquakes in close proximity will generate a confluence of seismic activity increasing the region's overall sound and visual impact.<br />
+<br />
+<strong>Instructions:</strong>
+<ul>
+  <li>Zoom</li>
+  <ul>
+    <li>Press Z to start</li>
+    <li>Move mouse to zoom in and out</li>
+    <li>Press Z to stop</li>
+  </ul>
+  <li>Move Map</li>
+  <ul>
+    <li>Press C to start</li>
+    <li>Move mouse to change map perspective</li>
+    <li>Press C to stop</li>
+  </ul>
+  <li>Press X to turn off the cursor</li>
+</ul>
+<span class="close"><em>Click here to close this dialog.</em></span>
+</div>
 <div role="main">
 
   <div id="hud" style="display: none;"></div>
+  <div id="about-button">About</div>
   <div id="visual"></div>
   <canvas id="image_loader"></canvas>
 

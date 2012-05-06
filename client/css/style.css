@@ -74,7 +74,7 @@ td { vertical-align: top; }
    Author:
    ========================================================================== */
 
-body {
+body.no-cursor {
   cursor: none;
 }
 
@@ -213,6 +213,35 @@ body {
   font-size: 40px;
   font-weight: 100;
   color: #fff;
+}
+#about-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  font-size: 14px;
+  color: #fff;
+  cursor: default;
+}
+#about-button:hover {
+  text-shadow: 0 0 5px rgba(255,255,255,0.8);
+}
+#about-dialog {
+  position: absolute;
+  left: 50%;
+  margin: 50px 0 0 -300px;
+  padding: 10px;
+  width: 600px;
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  font-size: 14px;
+}
+#about-dialog .close {
+  cursor: default;
+}
+#about-dialog .close:hover {
+  text-shadow: 0 0 5px rgba(255,255,255,1);
 }
 
 #timeline {

@@ -592,7 +592,7 @@ var UI = (function () {
     */
     
     $(document).on('keydown', function (e) {
-      //console.log('key', e.which);
+      console.log('key', e.which);
       //no stopping the sim
       /*
 if (e.which === 32) {
@@ -631,9 +631,16 @@ if (e.which === 32) {
         e.preventDefault();
         e.stopPropagation();
       }
+      
+      //Toggle the cursor
+      if (e.which === 88) {
+        $(document.body).toggleClass('no-cursor');
+      }
     });
     
-    $(document).on('click', function (e) {
+    //not sure this is good given that we have some buttons now
+    /*
+$(document).on('click', function (e) {
             
       if (e.button === 0) {
         if (Visual.toggleCameraZoom()) {
@@ -643,6 +650,15 @@ if (e.which === 32) {
         e.stopPropagation();
       }
       
+    });
+*/
+
+    $('#about-button').click(function () {
+      $('#about-dialog').toggle('fade');
+      $()
+    });
+    $('#about-dialog .close').click(function () {
+      $('#about-dialog').fadeOut();
     });
 
   };
