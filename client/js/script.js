@@ -226,7 +226,7 @@ var DATA = {};
         var mapBounds = DATA.source.getBounds(),
             xAxis,
             yAxis,
-            rate = 1,
+            rate = 5,
             increment = 'weeks', // per second
             msPer = {
                 'days': 1000 * 60 * 60 * 24,
