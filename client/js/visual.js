@@ -379,24 +379,36 @@ var Visual = (function () {
 
     me.addQuake = function (mag, x, y) {
 
-        var cube = _plane[Math.floor(x)][Math.floor(y)];
+        var index = _plane[Math.floor(x)],
+            cube,
+            posX,
+            posY,
+            randomNumber;
 
-        cube.mesh.material = _cubeMaterial4;
-        cube.epi = cube.time;
+        if (index) {
+            cube = index[Math.floor(y)];
+        }
 
-        _quakes.push({
-            mag: mag,
-            radius: 0,
-            x: x,
-            y: y,
-            cells: {}
-        });
+        if (cube) {
 
-        var posX = ((x / me.getBounds().x) * 2) - 1;
-        var posY = ((y / me.getBounds().y) * 2) - 1;
-        var randomnumber = Math.floor( Math.random() * 5 );
+            cube.mesh.material = _cubeMaterial4;
+            cube.epi = cube.time;
 
-        Audio.playSample(randomnumber, posX, posY, mag);
+            _quakes.push({
+                mag: mag,
+                radius: 0,
+                x: x,
+                y: y,
+                cells: {}
+            });
+
+            posX = ((x / me.getBounds().x) * 2) - 1;
+            posY = ((y / me.getBounds().y) * 2) - 1;
+            randomNumber = Math.floor( Math.random() * 5 );
+
+            Audio.playSample(randomNumber, posX, posY, mag);
+
+        }
 
     };
 
