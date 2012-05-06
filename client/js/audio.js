@@ -139,8 +139,8 @@ var Audio = (function () {
         filter.connect(panner);
         panner.connect(reverb);
 
-        wetGainNode.gain.value = gain * 0.2;
-        dryGainNode.gain.value = gain * 0.8;
+        wetGainNode.gain.value = gain * 0.4;
+        dryGainNode.gain.value = gain * 0.9;
 
         filter.type = 0; // Low-pass filter. See BiquadFilterNode docs
         filter.frequency.value = (mag * 1000) + 50;
