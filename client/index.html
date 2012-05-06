@@ -1,60 +1,62 @@
 <!doctype html>
 <html class="no-js" lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-	<title>soundQuake</title>
-	<meta name="description" content="Audio/Visual experience based historic earthquake data">
-	<meta name="author" content="Kyle Warren, Lisa Hiatt, Chris Delbuck, Danny Bowman, Barry Threw">
+    <title>soundQuake</title>
+    <meta name="description" content="Audio/Visual experience based historic earthquake data">
+    <meta name="author" content="Kyle Warren, Lisa Hiatt, Chris Delbuck, Danny Bowman, Barry Threw">
 
-	<meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width">
 
-	<link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.18.custom.css">
 
-	<script src="js/libs/modernizr-2.5.3.min.js"></script>
+    <script src="js/libs/modernizr-2.5.3.min.js"></script>
 </head>
 <body>
 <header>
 
 </header>
+
 <div id="about-dialog" style="display: none;"><strong>soundQuake</strong> is an interactive visual and acoustic representation of Bay Area earthquake data from 1973 - present day. Every time an earthquake occurs in a given time range, a 3D rectangle will rise from the mapped epicenter and produce the sound of a banjo chord. The magnitude of the earthquake will impact the volume of the banjo sound, as well as the height of the rectangular protrusion. Multiple earthquakes in close proximity will generate a confluence of seismic activity increasing the region's overall sound and visual impact.<br />
-<br />
-<strong>Instructions:</strong>
-<ul>
-  <li>Zoom</li>
-  <ul>
-    <li>Press Z to start</li>
-    <li>Move mouse to zoom in and out</li>
-    <li>Press Z to stop</li>
-  </ul>
-  <li>Move Map</li>
-  <ul>
-    <li>Press C to start</li>
-    <li>Move mouse to change map perspective</li>
-    <li>Press C to stop</li>
-  </ul>
-  <li>Press X to turn off the cursor</li>
-</ul>
-<span class="close"><em>Click here to close this dialog.</em></span>
+    <br />
+    <strong>Instructions:</strong>
+    <ul>
+        <li>Zoom</li>
+        <ul>
+            <li>Press Z to start</li>
+            <li>Move mouse to zoom in and out</li>
+            <li>Press Z to stop</li>
+        </ul>
+        <li>Move Map</li>
+        <ul>
+            <li>Press C to start</li>
+            <li>Move mouse to change map perspective</li>
+            <li>Press C to stop</li>
+        </ul>
+        <li>Press X to turn off the cursor</li>
+    </ul>
+    <span class="close"><em>Click here to close this dialog.</em></span>
 </div>
+
 <div role="main">
 
-  <div id="hud" style="display: none;"></div>
-  <div id="about-button">About</div>
-  <div id="visual"></div>
+    <div id="hud" style="display: none;"></div>
+    <div id="about-button">About</div>
+
+    <div id="visual"></div>
 
     <div id="timeline">
         <div id="timeline-explanation">
             <div># of Quakes</div>
             <div>Year</div>
         </div>
-        <div id="timeline-range">
-        </div>
+        <div id="timeline-range"></div>
     </div>
 
-   <!-- // Removing controls for installation
+    <!-- // Removing controls for installation
    <div id="controls" class="inactive">
        <div id="controls-select">Customize</div>
        <div id="controls-input">
@@ -93,9 +95,13 @@
        </div>
    </div> -->
 
+    <!-- <canvas id="image_loader"></canvas> // Removing image_loader since we don't use pixelgrab.js-->
+
 </div>
+
 <footer>
 </footer>
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
@@ -110,11 +116,11 @@
 
 <script id="vertexShader" type="x-shader/x-vertex">
 
-	void main()	{
+    void main()	{
 
-		gl_Position = vec4( position, 1.0 );
+        gl_Position = vec4( position, 1.0 );
 
-	}
+    }
 
 </script>
 
@@ -122,12 +128,13 @@
 <script src="js/visual.js"></script>
 
 <script>
+    // TODO - dbow - Add analytics account when pushing to production.
     /*
-	var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-	(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-	g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-	s.parentNode.insertBefore(g,s)}(document,'script'));
-	*/
+     var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+     (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+     g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+     s.parentNode.insertBefore(g,s)}(document,'script'));
+     */
 </script>
 
 </body>
