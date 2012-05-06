@@ -78,6 +78,10 @@ body.no-cursor {
   cursor: none;
 }
 
+body {
+    overflow: hidden;
+}
+
 #visual {
   background: #000;
 }
