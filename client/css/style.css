@@ -242,10 +242,23 @@ body {
   font-size: 14px;
 }
 #about-dialog .close {
-  cursor: default;
+    cursor: pointer;
+    position: absolute;
+    right: 0px;
+    padding: 1px 2px;
+    color: white;
+    text-decoration: underline;
+    margin: 10px 13px 0px 0px;
 }
 #about-dialog .close:hover {
-  text-shadow: 0 0 5px rgba(255,255,255,1);
+    text-shadow: 0 0 5px rgba(255,255,255,1);
+}
+
+#about-text {
+    margin-top: 50px;
+}
+#about-dialog a {
+    color: white;
 }
 
 #timeline {
