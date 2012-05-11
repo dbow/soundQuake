@@ -75,7 +75,7 @@ td { vertical-align: top; }
    ========================================================================== */
 
 body.no-cursor {
-  cursor: none;
+    cursor: none;
 }
 
 body {
@@ -83,7 +83,12 @@ body {
 }
 
 #visual {
-  background: #000;
+    background: #000;
+    position: absolute;
+    bottom: 0px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
 }
 
 #controls {
@@ -224,9 +229,10 @@ body {
   left: 10px;
   background: rgba(0,0,0,0.2);
   padding: 10px;
-  font-size: 14px;
+  font-size: 25px;
   color: #fff;
   cursor: default;
+  z-index: 5;
 }
 #about-button:hover {
   text-shadow: 0 0 5px rgba(255,255,255,0.8);
@@ -240,6 +246,9 @@ body {
   background: rgba(0,0,0,0.2);
   color: #fff;
   font-size: 14px;
+  z-index: 5;
+  max-height: 75%;
+  overflow-y: auto;
 }
 #about-dialog .close {
     cursor: pointer;
