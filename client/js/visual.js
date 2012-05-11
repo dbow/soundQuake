@@ -324,7 +324,6 @@ var Visual = (function () {
             quake,
             cube,
             i,
-            l,
             j;
 
         if (true || _running) {
@@ -332,9 +331,10 @@ var Visual = (function () {
         }
 
         if (_running) {
+
             if (_tick % 3 === 0) {
 
-                for (i = 0, l = _quakes.length; i < l; i++) {
+                for (i = _quakes.length; i--;) {
 
                     quake = _quakes[i];
 
@@ -348,11 +348,10 @@ var Visual = (function () {
 
             }
 
-            for (i = 0; i < PLANE_WIDTH; i++) {
+            for (i = PLANE_WIDTH; i--;) {
 
-                for (j = 0; j < PLANE_WIDTH; j++) {
+                for (j = PLANE_WIDTH; j--;) {
                     cube = _plane[i][j];
-
                     if (cube.mag > 0) {
                         _setCubeHeight(cube.mesh, Math.sin(cube.time / 20) * cube.mag);
                         cube.mag -= 0.002;
@@ -361,7 +360,6 @@ var Visual = (function () {
                     else {
                         cube.time = 0;
                     }
-
                     if (cube.epi >= 0 && cube.time - cube.epi > 50) {
                         cube.mesh.material = cube.oldMaterial;
                         cube.epi = 0;
