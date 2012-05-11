@@ -266,6 +266,19 @@ body {
 #about-text {
     margin-top: 50px;
 }
+
+.about-dialog-tab {
+    float: left;
+    margin: 10px;
+    font-size: 15px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.about-dialog-tab.about-selected {
+    text-shadow: 0 0 5px rgba(255,255,255,1);
+}
+
 #about-dialog a {
     color: white;
 }

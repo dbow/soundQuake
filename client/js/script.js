@@ -610,6 +610,7 @@ var UI = (function () {
         });
         */
 
+        // About Dialogue events
 
         $('#about-button').click(function () {
             $('#about-dialog').toggle('fade');
@@ -617,6 +618,20 @@ var UI = (function () {
         });
         $('#about-dialog .close').click(function () {
             $('#about-dialog').fadeOut();
+        });
+
+        $('#about-tab').click(function () {
+            $('#about-tab').addClass('about-selected');
+            $('#instructions-tab').removeClass('about-selected');
+            $('#about-tab-content').show();
+            $('#instructions-tab-content').hide();
+        });
+
+        $('#instructions-tab').click(function () {
+            $('#about-tab').removeClass('about-selected');
+            $('#instructions-tab').addClass('about-selected');
+            $('#about-tab-content').hide();
+            $('#instructions-tab-content').show();
         });
 
         $(document).on('keydown', function (e) {
