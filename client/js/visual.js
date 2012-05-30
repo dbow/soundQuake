@@ -32,6 +32,8 @@ var Visual = (function () {
         _cameraZoom = false,
         _running = false,
 
+        _additiveMagnitudes = false,
+
         _colorSchemes = [
             [0x003AEC, 0x001440, 0x000074],
             [0xA3FFDC, 0xD9EF30, 0xB7D264],
@@ -94,8 +96,19 @@ var Visual = (function () {
 
             if (!quake.cells[x + ' ' + y]) {
                 if (cube.mag < 1) {
-                    magDiff = 1 - cube.mag;
-                    cube.mag += quake.mag * magDiff;
+
+                    // If _additiveMagnitudes flag is true, add quake mag as proportion of diff
+                    if (_additiveMagnitudes) {
+                        magDiff = 1 - cube.mag;
+                        cube.mag += quake.mag * magDiff;
+
+                    // Otherwise, set cube mag to quake mag if quake is greater.
+                    } else {
+                        if (quake.mag > cube.mag) {
+                            cube.mag = quake.mag;
+                        }
+                    }
+
                 }
                 quake.cells[x + ' ' + y] = 1;
             }
