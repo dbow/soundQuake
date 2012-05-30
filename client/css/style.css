@@ -222,6 +222,7 @@ body {
   font-size: 40px;
   font-weight: 100;
   color: #fff;
+  z-index: 5;
 }
 #about-button {
   position: absolute;

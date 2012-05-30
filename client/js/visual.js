@@ -30,8 +30,10 @@ var Visual = (function () {
 
         _cameraMove = false,
         _cameraZoom = false,
+        _mapOpacity = false,
         _running = false,
 
+        _mapMaterial,
         _additiveMagnitudes = false,
 
         _colorSchemes = [
@@ -324,6 +326,29 @@ var Visual = (function () {
         // add to the scene
         _group.add(pointLight);
 
+
+        // Add the map image as a plane on top of the cubes.
+        var _mapTexture = THREE.ImageUtils.loadTexture('../img/map.png', {}, function () {
+                _renderer.render(_scene);
+            }),
+            _mapGeometry,
+            _mapMesh;
+
+        // image 1420 x 868
+        _mapTexture.repeat.x = 0.75;
+        _mapTexture.repeat.y = 0.71;
+        _mapMaterial = new THREE.MeshBasicMaterial({
+            map: _mapTexture,
+            opacity: 0,
+            transparent: true
+        });
+        _mapGeometry = new THREE.PlaneGeometry(PLANE_WIDTH * CUBE_WIDTH, PLANE_HEIGHT * CUBE_WIDTH);
+        _mapMesh = new THREE.Mesh(_mapGeometry, _mapMaterial);
+        _mapMesh.position.y = 80;
+        _mapMesh.position.x = -10;
+        _mapMesh.position.z = -10;
+        _group.add(_mapMesh);
+
         _scene.add(_group);
 
         me.start();
@@ -439,6 +464,8 @@ var Visual = (function () {
         } else if (_cameraZoom) {
             _cameraDistance = (_mouseY + HALF_HEIGHT) * 2;
             _setCamera();
+        } else if (_mapOpacity) {
+            _mapMaterial.opacity = (_mouseY + HALF_HEIGHT) / HEIGHT;
         }
 
         //_camera.position.y += 600 * Math.cos(_mouseY * 0.008 - (_camera.position.y / 600));
@@ -488,10 +515,12 @@ var Visual = (function () {
     me.resetBoth = function () {
         _cameraZoom = false;
         _cameraMove = false;
+        _mapOpacity = false;
     };
 
     me.toggleCameraMove = function () {
         _cameraZoom = false;
+        _mapOpacity = false;
         return _cameraMove = !_cameraMove;
     };
 
@@ -504,7 +533,14 @@ var Visual = (function () {
 
     me.toggleCameraZoom = function () {
         _cameraMove = false;
+        _mapOpacity = false;
         return _cameraZoom = !_cameraZoom;
+    };
+
+    me.toggleMapOpacity = function () {
+        _cameraMove = false;
+        _cameraZoom = false;
+        return _mapOpacity = !_mapOpacity;
     };
 
     return me;

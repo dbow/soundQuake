@@ -663,6 +663,13 @@ var UI = (function () {
                 }
             }
 
+            // press M to adjust map opacity
+            else if (e.which === 77) {
+                if (Visual.toggleMapOpacity()) {
+                    me.showHudMessage('Map');
+                }
+            }
+
             // press T to toggle Timeline
             else if (e.which === 84) {
                 if (UI.toggleTimeline()) {
