@@ -339,7 +339,7 @@ var Visual = (function () {
         _mapTexture.repeat.y = 0.71;
         _mapMaterial = new THREE.MeshBasicMaterial({
             map: _mapTexture,
-            opacity: 0,
+            opacity: 0.3,
             transparent: true
         });
         _mapGeometry = new THREE.PlaneGeometry(PLANE_WIDTH * CUBE_WIDTH, PLANE_HEIGHT * CUBE_WIDTH);
