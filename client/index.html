@@ -23,14 +23,15 @@
 <div id="about-dialog" style="display: none;">
     <div class="about-dialog-tab about-selected" id="about-tab">[What is soundQuake?]</div>
     <div class="about-dialog-tab" id="instructions-tab">[How do I use soundQuake?]</div>
+    <div class="about-dialog-tab" id="advanced-tab">[Advanced Controls]</div>
     <div class="close">[Close]</div>
     <div id="about-text">
-        <div id="about-tab-content">
+        <div class="about-content" id="about-tab-content">
             <p>
                 <strong>soundQuake</strong> is an interactive visual and acoustic representation of Bay Area earthquake data from 1973 - present day. Every time an earthquake occurs in a given time range, a white 3D rectangle will rise from the mapped epicenter and produce the sound of a banjo chord. The magnitude of the earthquake will impact the volume of the banjo sound, as well as the height of the rectangular protrusion. Multiple earthquakes in close proximity will generate a confluence of seismic activity increasing the region's overall sound and visual impact.
             </p>
             <p>
-                soundQuake was one of the <a href="http://www.gaffta.org/2012/03/04/soundquake/" target="_blank">winning</a> <a href="http://www.thecreatorsproject.com/blog/art-hack-weekend-san-francisco-a-html5-webgl-hackathon" target="_blank">pieces</a> created at <a href="http://www.thecreatorsproject.com/arthackweekendsf" target="_blank">Art Hack Weekend SF</a>, hosted by <a href="http://www.gaffta.org/" target="_blank">GAFFTA</a> and <a href="http://www.thecreatorsproject.com/" target="_blank">The Creator's Project</a>.  It was installed at the The Creator's Project SF festival in March of 2012, and will be installed at Nightlife at the California Academy of Sciences in late May.
+                soundQuake was one of the <a href="http://www.gaffta.org/2012/03/04/soundquake/" target="_blank">winning</a> <a href="http://www.thecreatorsproject.com/blog/art-hack-weekend-san-francisco-a-html5-webgl-hackathon" target="_blank">pieces</a> created at <a href="http://www.thecreatorsproject.com/arthackweekendsf" target="_blank">Art Hack Weekend SF</a>, hosted by <a href="http://www.gaffta.org/" target="_blank">GAFFTA</a> and <a href="http://www.thecreatorsproject.com/" target="_blank">The Creator's Project</a>.  It was installed at the The Creator's Project SF festival in March of 2012, and at Nightlife at the California Academy of Sciences in late May.
             </p>
             <p>
                 The piece uses WebGL (ThreeJS), the Web Audio API, NodeJS (Express), Google Fusion Tables, and the USGS Earthquake Database.  [<a href="https://github.com/bowman224/soundQuake/" target="_blank">Source Code</a>]
@@ -45,7 +46,7 @@
                 </ul>
             </div>
         </div>
-        <div id="instructions-tab-content" style="display:none;">
+        <div class="about-content" id="instructions-tab-content" style="display:none;">
             <strong>Instructions:</strong>
             <ul>
                 <li>Zoom</li>
@@ -69,6 +70,21 @@
                 <li>Press X to show/hide the cursor</li>
                 <li>Press T to show/hide the Timeline and About button</li>
             </ul>
+        </div>
+        <div class="about-content" id="advanced-tab-content" style="display:none;">
+            <strong>Advanced Controls</strong>
+            <div class="controls-ui-group clearfix">
+                <div class="control-text">Choose color</div>
+                <div id="controls-input-colors">
+                    <select id="controls-select-colors">
+                        <option selected="selected" value="1">Cobalt/Blue</option>
+                        <option value="2">Green/Yellow</option>
+                        <option value="3">Grayscale</option>
+                        <option value="4">Orange/Purple</option>
+                        <option value="5">Yellow/Orange</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -604,11 +604,12 @@ var UI = (function () {
             $('#controls-input').hide();
             //Visual.startCameraMove();
         });
+        */
 
         $('#controls-select-colors').on('change', function () {
             Visual.selectColorScheme($(this).val());
         });
-        */
+
 
         // About Dialogue events
 
@@ -620,18 +621,12 @@ var UI = (function () {
             $('#about-dialog').fadeOut();
         });
 
-        $('#about-tab').click(function () {
-            $('#about-tab').addClass('about-selected');
-            $('#instructions-tab').removeClass('about-selected');
-            $('#about-tab-content').show();
-            $('#instructions-tab-content').hide();
-        });
-
-        $('#instructions-tab').click(function () {
-            $('#about-tab').removeClass('about-selected');
-            $('#instructions-tab').addClass('about-selected');
-            $('#about-tab-content').hide();
-            $('#instructions-tab-content').show();
+        $('.about-dialog-tab').click(function (e) {
+            var tabName = $(e.target).attr('id').replace('-tab', '');
+            $('.about-dialog-tab').removeClass('about-selected');
+            $('.about-content').hide();
+            $('#' + tabName + '-tab').addClass('about-selected');
+            $('#' + tabName + '-tab-content').show();
         });
 
         $(document).on('keydown', function (e) {
