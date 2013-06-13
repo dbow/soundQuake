@@ -120,8 +120,9 @@ var DATA = {};
 
             parseResponse: function (data, rowParse) {
 
-                var rows = data.split(/\n/),
-                    columns = rows.shift().split(','),
+                var data = JSON.parse(data),
+                    rows = data.rows,
+                    columns = data.columns,
                     numColumns = columns.length,
                     numRows = rows.length,
                     i,
@@ -135,7 +136,7 @@ var DATA = {};
                     parsedArray = [];
 
                 for (i = 0; i < numRows; i++) {
-                    row = rows[i].split(',');
+                    row = rows[i];
                     if (row.length === numColumns) {
                         rowObj = {};
                         populatedRow = false;

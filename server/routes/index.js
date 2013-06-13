@@ -24,26 +24,23 @@ var dataCache = {};
 /**
  * Data request handler.
  *
- * Server makes HTTP request to Google Fusion tables for data,
+ * Server makes HTTPS request to Google Fusion tables for data,
  * acting as a proxy for client (to avoid cross-domain issues).
  */
 exports.data = function(req, response) {
 
-    var http = require('http'),
+    var https = require('https'),
         query = encodeURI(req.param('query', '')),
-        options = {
-            host: 'www.google.com',
-            port: 80,
-            path: '/fusiontables/api/' + query
-        },
+        key = require('./credentials.js').credentials.fusionTablesKey,
+        url = 'https://www.googleapis.com/fusiontables/v1/',
         responseData = '';
 
     // If data is cached, return it.
     if (dataCache[query]) {
         response.send(dataCache[query]);
     } else {
-        // Else, make HTTP request to Fusion tables.
-        http.get(options, function(res) {
+        // Else, make HTTPS request to Fusion tables.
+        https.get(url + query + '&key=' + key, function(res) {
             if (res.statusCode !== 1000) {
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
