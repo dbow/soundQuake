@@ -20,9 +20,9 @@ required installation:
 
 nodejs --- https://github.com/joyent/node/wiki/Installation
  ( npm --- http://npmjs.org/ )
-expressjs --- http://expressjs.com/guide.html
 
 to run:
 cd server/
-add your Fusion Tables API key to server/routes/credentials.js
+npm install
+  (edit server/routes/credentials.js to add your Fusion Tables API key)
 node app.js // Express server listening on port 3000 in development mode

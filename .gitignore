@@ -2,3 +2,5 @@
 # IDE files #
 .idea/*
 *.DS_STORE
+# node_modules installed via npm #
+server/node_modules/*
