@@ -286,7 +286,7 @@ var Visual = (function () {
                 // create a new mesh with cube geometry
                 cube = new THREE.Mesh(
 
-                    new THREE.CubeGeometry(
+                    new THREE.BoxGeometry(
                         width,
                         height,
                         depth),
@@ -328,8 +328,8 @@ var Visual = (function () {
 
 
         // Add the map image as a plane on top of the cubes.
-        var _mapTexture = THREE.ImageUtils.loadTexture('../img/map.png', {}, function () {
-                _renderer.render(_scene);
+        var _mapTexture = new THREE.TextureLoader().load('img/map.png', function () {
+                _renderer.render(_scene, _camera);
             }),
             _mapGeometry,
             _mapMesh;

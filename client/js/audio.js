@@ -1,6 +1,6 @@
 /**
  * BufferLoader
- * Constructor function to handle loading of audio files into a webkitAudioContext
+ * Constructor function to handle loading of audio files into an AudioContext
  *
  */
 function BufferLoader (context, urlList, callback) {
@@ -15,7 +15,7 @@ function BufferLoader (context, urlList, callback) {
  * BufferLoader.loadBuffer
  *
  * Makes an XMLHttpRequest to retrieve audio file at given url and add the
- * returned buffer into the BufferLoader's webkitAudioContext
+ * returned buffer into the BufferLoader's AudioContext
  *
  */
 BufferLoader.prototype.loadBuffer = function (url, index) {
@@ -103,7 +103,9 @@ var Audio = (function () {
         request.responseType = "arraybuffer";
 
         request.onload = function () {
-            reverb.buffer = context.createBuffer(request.response, false);
+            context.decodeAudioData(request.response, function (buffer) {
+                reverb.buffer = buffer;
+            });
         };
 
         request.send();
@@ -118,10 +120,8 @@ var Audio = (function () {
      */
     me.playSample = function (ranNum, x, y, mag) {
 
-        //var gainNode = context.createGainNode();
-
-        var dryGainNode = context.createGainNode(),
-            wetGainNode = context.createGainNode(),
+        var dryGainNode = context.createGain(),
+            wetGainNode = context.createGain(),
             filter = context.createBiquadFilter(),
             source = context.createBufferSource(),
             panner = context.createPanner(),
@@ -142,40 +142,49 @@ var Audio = (function () {
         wetGainNode.gain.value = gain * 0.4;
         dryGainNode.gain.value = gain * 0.9;
 
-        filter.type = 0; // Low-pass filter. See BiquadFilterNode docs
+        filter.type = 'lowpass';
         filter.frequency.value = (mag * 1000) + 50;
 
-        panner.setPosition(x, y, 0);
+        panner.positionX.value = x;
+        panner.positionY.value = y;
+        panner.positionZ.value = 0;
 
-        source.noteOn(0);
+        source.start(0);
 
     };
 
     /**
      * Audio.init
      *
-     * Creates webkitAudioContext, loads in sound files as buffers, and sets up reverb.
+     * Creates AudioContext, loads in sound files as buffers, and sets up reverb.
      *
      */
     me.init = function () {
 
-        // Create webkitAudioContext, if possible.
+        // Create AudioContext, if possible.
         try {
-            context = new webkitAudioContext();
+            context = new AudioContext();
         } catch (e) {
-            alert('Web Audio API is not supported in this browser.  Try Google Chrome.');
+            alert('Web Audio API is not supported in this browser.');
         }
+
+        // Resume AudioContext on first user interaction (required by autoplay policy).
+        document.addEventListener('click', function () {
+            if (context && context.state === 'suspended') {
+                context.resume();
+            }
+        });
 
         // Load in audio files from provided array via a BufferLoader
         try {
             bufferLoader = new BufferLoader(
                 context,
                 [
-                    '../samples/banjo_b1.wav',
-                    '../samples/banjo_d1.wav',
-                    '../samples/banjo_d2.wav',
-                    '../samples/banjo_g1.wav',
-                    '../samples/banjo_g2.wav'
+                    'samples/banjo_b1.wav',
+                    'samples/banjo_d1.wav',
+                    'samples/banjo_d2.wav',
+                    'samples/banjo_g1.wav',
+                    'samples/banjo_g2.wav'
                 ],
                 finishedLoading
             );
@@ -186,7 +195,7 @@ var Audio = (function () {
 
         // Set up reverb.
         reverb = context.createConvolver();
-        setReverbImpulseResponse('../samples/reverb.wav');
+        setReverbImpulseResponse('samples/reverb.wav');
 
         compressor = context.createDynamicsCompressor();
 

@@ -11,48 +11,54 @@ exports.index = function(req, res) {
 
     data = fs.readFileSync(__dirname + '/../../client/index.html', 'UTF-8');
 
-    res.writeHead(200, {'Content-Type': 'text/html','Content-Length':data.length});
+    res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': Buffer.byteLength(data)});
     res.write(data);
     res.end();
 
 };
 
-// Server caches results, keying on query value.
-var dataCache = {};
+
+/**
+ * Load the query→filename mapping from data/cache.json at startup.
+ * Keys in cache.json are percent-encoded; decode them so they match the
+ * plain string that Express gives us in req.query.query.
+ */
+var path = require('path'),
+    fs   = require('fs'),
+    DATA_DIR = path.join(__dirname, '../data'),
+    cacheMap = {};
+
+try {
+    var raw = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'cache.json'), 'utf8'));
+    Object.keys(raw).forEach(function(key) {
+        cacheMap[decodeURIComponent(key)] = raw[key];
+    });
+} catch (e) {
+    console.error('Failed to load data/cache.json:', e.message);
+}
 
 
 /**
  * Data request handler.
  *
- * Server makes HTTPS request to Google Fusion tables for data,
- * acting as a proxy for client (to avoid cross-domain issues).
+ * Looks up the query in cache.json and returns the corresponding local JSON file.
  */
 exports.data = function(req, response) {
 
-    var https = require('https'),
-        query = encodeURI(req.param('query', '')),
-        key = require('./credentials.js').credentials.fusionTablesKey,
-        url = 'https://www.googleapis.com/fusiontables/v1/',
-        responseData = '';
+    var query    = req.query.query || '',
+        filename = cacheMap[query];
 
-    // If data is cached, return it.
-    if (dataCache[query]) {
-        response.send(dataCache[query]);
-    } else {
-        // Else, make HTTPS request to Fusion tables.
-        https.get(url + query + '&key=' + key, function(res) {
-            if (res.statusCode !== 1000) {
-                res.setEncoding('utf8');
-                res.on('data', function (chunk) {
-                    responseData += chunk;
-                    dataCache[query] = responseData;
-                    response.send(responseData);
-                });
-            }
-            res.on('error', function(e) {
-                console.log("Got error: " + e.message);
-            });
-        });
+    if (!filename) {
+        response.status(404).json({ error: 'Query not found in cache', query: query });
+        return;
     }
+
+    fs.readFile(path.join(DATA_DIR, filename), 'utf8', function(err, data) {
+        if (err) {
+            response.status(500).json({ error: 'Failed to read data file', file: filename });
+            return;
+        }
+        response.type('json').send(data);
+    });
 
 };

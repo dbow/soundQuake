@@ -1,0 +1,4 @@
+{
+    "query?sql=DESCRIBE%201jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY": "describe.json",
+    "query?sql=SELECT%20%27Date%27,%20%27Latitude%27,%20%27Longitude%27,%20%27Magnitude%27,%20%27Depth%27%20FROM%201jtomLnD5Afah8LUo2T4CT9GwI5NpDS6-2Cv4HWY": "select.json"
+}

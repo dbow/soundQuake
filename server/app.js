@@ -4,30 +4,16 @@
  */
 
 var express = require('express'),
+    bodyParser = require('body-parser'),
     routes = require('./routes'),
-    app = module.exports = express.createServer();
+    app = express();
 
 
-// Configuration
+// Middleware
 
-app.configure(function () {
-    app.set('views', __dirname + '/../client/index.html');
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(app.router);
-    app.use(express.static(__dirname + '/../client'));
-});
-
-app.configure('development', function () {
-    app.use(express.errorHandler({
-        dumpExceptions: true,
-        showStack: true
-    }));
-});
-
-app.configure('production', function () {
-    app.use(express.errorHandler());
-});
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(__dirname + '/../client'));
 
 
 // Routes
@@ -35,5 +21,20 @@ app.configure('production', function () {
 app.get('/', routes.index);
 app.get('/data', routes.data);
 
-app.listen(3000); // TODO - dbow - In production use 80
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+
+// Error handling
+
+if (app.get('env') === 'development') {
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500).json({ error: err.message, stack: err.stack });
+    });
+} else {
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500).json({ error: err.message });
+    });
+}
+
+
+var server = app.listen(3000, function() {
+    console.log("Express server listening on port %d in %s mode", server.address().port, app.get('env'));
+});

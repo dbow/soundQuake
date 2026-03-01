@@ -120,8 +120,7 @@ var DATA = {};
 
             parseResponse: function (data, rowParse) {
 
-                var data = JSON.parse(data),
-                    rows = data.rows,
+                var rows = data.rows,
                     columns = data.columns,
                     numColumns = columns.length,
                     numRows = rows.length,
@@ -615,8 +614,7 @@ var UI = (function () {
         // About Dialogue events
 
         $('#about-button').click(function () {
-            $('#about-dialog').toggle('fade');
-            $()
+            $('#about-dialog').fadeToggle();
         });
         $('#about-dialog .close').click(function () {
             $('#about-dialog').fadeOut();

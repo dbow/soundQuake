@@ -1,0 +1,36 @@
+{
+ "kind": "fusiontables#sqlresponse",
+ "columns": [
+  "column id",
+  "name",
+  "type"
+ ],
+ "rows": [
+  [
+   "col3",
+   "Date",
+   "datetime"
+  ],
+  [
+   "col1",
+   "Latitude",
+   "location"
+  ],
+  [
+   "col4",
+   "Longitude",
+   "number"
+  ],
+  [
+   "col5",
+   "Magnitude",
+   "number"
+  ],
+  [
+   "col6",
+   "Depth",
+   "number"
+  ]
+ ]
+}
+
