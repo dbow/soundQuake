@@ -1,0 +1,9 @@
+{
+    "name": "soundquake"
+  , "version": "0.0.1"
+  , "private": true
+  , "scripts": {
+      "postinstall": "npm install --prefix server"
+    , "start": "node server/app.js"
+  }
+}
